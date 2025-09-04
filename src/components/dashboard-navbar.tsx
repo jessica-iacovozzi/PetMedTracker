@@ -36,6 +36,12 @@ export default function DashboardNavbar() {
             >
               History
             </Link>
+            <Link
+              href="/dashboard/settings"
+              className="text-sm font-medium hover:text-primary"
+            >
+              Settings
+            </Link>
           </nav>
         </div>
         <div className="flex gap-4 items-center">

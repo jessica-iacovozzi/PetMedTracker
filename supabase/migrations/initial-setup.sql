@@ -198,7 +198,21 @@ CREATE INDEX IF NOT EXISTS history_pet_id_idx ON public.history(pet_id);
 CREATE INDEX IF NOT EXISTS history_medication_id_idx ON public.history(medication_id);
 CREATE INDEX IF NOT EXISTS history_scheduled_time_idx ON public.history(scheduled_time);
 
+-- Create notification_preferences table
+CREATE TABLE IF NOT EXISTS public.notification_preferences (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id text REFERENCES public.users(user_id) NOT NULL,
+    email_enabled boolean DEFAULT true NOT NULL,
+    push_enabled boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Create indexes for notification preferences
+CREATE INDEX IF NOT EXISTS notification_preferences_user_id_idx ON public.notification_preferences(user_id);
+
 -- Enable realtime for new tables
 alter publication supabase_realtime add table pets;
 alter publication supabase_realtime add table medications;
 alter publication supabase_realtime add table history;
+alter publication supabase_realtime add table notification_preferences;

@@ -265,3 +265,123 @@ export const addHistoryEntry = async (entry: {
 
   return data;
 };
+
+export const updateProfileAction = async (formData: FormData) => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "User not authenticated" };
+  }
+
+  const name = formData.get("name")?.toString();
+  const email = formData.get("email")?.toString();
+  const password = formData.get("password")?.toString();
+  const confirmPassword = formData.get("confirmPassword")?.toString();
+
+  if (!name || !email) {
+    return { error: "Name and email are required" };
+  }
+
+  // Validate password if provided
+  if (password) {
+    if (password !== confirmPassword) {
+      return { error: "Passwords do not match" };
+    }
+    if (password.length < 6) {
+      return { error: "Password must be at least 6 characters" };
+    }
+  }
+
+  try {
+    // Update auth user if email or password changed
+    const authUpdates: any = {};
+    if (email !== user.email) {
+      authUpdates.email = email;
+    }
+    if (password) {
+      authUpdates.password = password;
+    }
+
+    if (Object.keys(authUpdates).length > 0) {
+      const { error: authError } = await supabase.auth.updateUser(authUpdates);
+      if (authError) {
+        return { error: authError.message };
+      }
+    }
+
+    // Update user profile in database
+    const { error: profileError } = await supabase
+      .from("users")
+      .update({
+        name: name,
+        full_name: name,
+        email: email,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", user.id);
+
+    if (profileError) {
+      return { error: profileError.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to update profile" };
+  }
+};
+
+export const updateNotificationPreferencesAction = async (preferences: {
+  emailEnabled: boolean;
+  pushEnabled: boolean;
+}) => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "User not authenticated" };
+  }
+
+  try {
+    // Check if notification preferences exist
+    const { data: existing } = await supabase
+      .from("notification_preferences")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+
+    if (existing) {
+      // Update existing preferences
+      const { error } = await supabase
+        .from("notification_preferences")
+        .update({
+          email_enabled: preferences.emailEnabled,
+          push_enabled: preferences.pushEnabled,
+        })
+        .eq("user_id", user.id);
+
+      if (error) {
+        return { error: error.message };
+      }
+    } else {
+      // Create new preferences
+      const { error } = await supabase.from("notification_preferences").insert({
+        user_id: user.id,
+        email_enabled: preferences.emailEnabled,
+        push_enabled: preferences.pushEnabled,
+      });
+
+      if (error) {
+        return { error: error.message };
+      }
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to update notification preferences" };
+  }
+};
