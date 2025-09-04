@@ -7,7 +7,7 @@ import { createClient } from "../../supabase/server";
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
-  const fullName = formData.get("full_name")?.toString() || '';
+  const fullName = formData.get("full_name")?.toString() || "";
   const supabase = await createClient();
 
   if (!email || !password) {
@@ -18,14 +18,17 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
-  const { data: { user }, error } = await supabase.auth.signUp({
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
         full_name: fullName,
         email: email,
-      }
+      },
     },
   });
 
@@ -35,17 +38,14 @@ export const signUpAction = async (formData: FormData) => {
 
   if (user) {
     try {
-
-      const { error: updateError } = await supabase
-        .from('users')
-        .insert({
-          id: user.id,
-          user_id: user.id,
-          name: fullName,
-          email: email,
-          token_identifier: user.id,
-          created_at: new Date().toISOString()
-        });
+      const { error: updateError } = await supabase.from("users").insert({
+        id: user.id,
+        user_id: user.id,
+        name: fullName,
+        email: email,
+        token_identifier: user.id,
+        created_at: new Date().toISOString(),
+      });
 
       if (updateError) {
         // Error handling without console.error
@@ -166,10 +166,10 @@ export const checkUserSubscription = async (userId: string) => {
   const supabase = await createClient();
 
   const { data: subscription, error } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('status', 'active')
+    .from("subscriptions")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("status", "active")
     .single();
 
   if (error) {
@@ -177,4 +177,91 @@ export const checkUserSubscription = async (userId: string) => {
   }
 
   return !!subscription;
+};
+
+export const getHistoryLog = async (
+  userId: string,
+  petId?: string,
+  startDate?: string,
+  endDate?: string,
+) => {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("history")
+    .select(
+      `
+      *,
+      pets!inner(name, species),
+      medications!inner(name, dosage)
+    `,
+    )
+    .eq("user_id", userId)
+    .order("scheduled_time", { ascending: false });
+
+  if (petId) {
+    query = query.eq("pet_id", petId);
+  }
+
+  if (startDate) {
+    query = query.gte("scheduled_time", startDate);
+  }
+
+  if (endDate) {
+    query = query.lte("scheduled_time", endDate);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const getPets = async (userId: string) => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("pets")
+    .select("*")
+    .eq("user_id", userId)
+    .order("name");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const addHistoryEntry = async (entry: {
+  userId: string;
+  petId: string;
+  medicationId: string;
+  dosage: string;
+  scheduledTime: string;
+  status: "given" | "missed";
+}) => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("history")
+    .insert({
+      user_id: entry.userId,
+      pet_id: entry.petId,
+      medication_id: entry.medicationId,
+      dosage: entry.dosage,
+      scheduled_time: entry.scheduledTime,
+      status: entry.status,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };

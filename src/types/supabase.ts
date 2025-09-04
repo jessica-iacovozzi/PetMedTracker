@@ -14,6 +14,153 @@ export type Database = {
   }
   public: {
     Tables: {
+      history: {
+        Row: {
+          created_at: string
+          dosage: string
+          id: string
+          medication_id: string
+          pet_id: string
+          scheduled_time: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dosage: string
+          id?: string
+          medication_id: string
+          pet_id: string
+          scheduled_time: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dosage?: string
+          id?: string
+          medication_id?: string
+          pet_id?: string
+          scheduled_time?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "history_medication_id_fkey"
+            columns: ["medication_id"]
+            isOneToOne: false
+            referencedRelation: "medications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "history_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      medications: {
+        Row: {
+          created_at: string
+          dosage: string
+          duration: string | null
+          frequency: string
+          id: string
+          name: string
+          pet_id: string
+          timing: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dosage: string
+          duration?: string | null
+          frequency: string
+          id?: string
+          name: string
+          pet_id: string
+          timing: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dosage?: string
+          duration?: string | null
+          frequency?: string
+          id?: string
+          name?: string
+          pet_id?: string
+          timing?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medications_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      pets: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          photo: string | null
+          species: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          photo?: string | null
+          species: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          photo?: string | null
+          species?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           amount: number | null
