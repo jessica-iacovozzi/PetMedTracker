@@ -385,3 +385,172 @@ export const updateNotificationPreferencesAction = async (preferences: {
     return { error: "Failed to update notification preferences" };
   }
 };
+
+export const createReminderAction = async (reminderData: {
+  petId: string;
+  medicationId: string;
+  scheduledTime: string;
+}) => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "User not authenticated" };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("reminders")
+      .insert({
+        user_id: user.id,
+        pet_id: reminderData.petId,
+        medication_id: reminderData.medicationId,
+        scheduled_time: reminderData.scheduledTime,
+        status: "pending",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    return { error: "Failed to create reminder" };
+  }
+};
+
+export const getTodaysRemindersAction = async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "User not authenticated" };
+  }
+
+  try {
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+
+    const { data, error } = await supabase
+      .from("reminders")
+      .select(
+        `
+        *,
+        pets!inner(name, species),
+        medications!inner(name, dosage)
+      `,
+      )
+      .eq("user_id", user.id)
+      .gte("scheduled_time", startOfDay)
+      .lte("scheduled_time", endOfDay)
+      .order("scheduled_time", { ascending: true });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    return { error: "Failed to fetch today's reminders" };
+  }
+};
+
+export const markReminderAsGivenAction = async (reminderId: string) => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "User not authenticated" };
+  }
+
+  try {
+    // Get reminder details first
+    const { data: reminder, error: fetchError } = await supabase
+      .from("reminders")
+      .select(
+        `
+        *,
+        pets!inner(name),
+        medications!inner(name, dosage)
+      `,
+      )
+      .eq("id", reminderId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (fetchError || !reminder) {
+      return { error: "Reminder not found" };
+    }
+
+    // Update reminder status
+    const { error: updateError } = await supabase
+      .from("reminders")
+      .update({ status: "given" })
+      .eq("id", reminderId)
+      .eq("user_id", user.id);
+
+    if (updateError) {
+      return { error: updateError.message };
+    }
+
+    // Add to history log
+    const { error: historyError } = await supabase.from("history").insert({
+      user_id: user.id,
+      pet_id: reminder.pet_id,
+      medication_id: reminder.medication_id,
+      dosage: reminder.medications.dosage,
+      scheduled_time: reminder.scheduled_time,
+      status: "given",
+    });
+
+    if (historyError) {
+      return { error: historyError.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to mark reminder as given" };
+  }
+};
+
+export const getNotificationPreferencesAction = async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "User not authenticated" };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("notification_preferences")
+      .select("*")
+      .eq("user_id", user.id)
+      .single();
+
+    if (error && error.code !== "PGRST116") {
+      return { error: error.message };
+    }
+
+    // Return default preferences if none exist
+    const preferences = data || {
+      email_enabled: true,
+      push_enabled: true,
+    };
+
+    return { success: true, data: preferences };
+  } catch (error) {
+    return { error: "Failed to fetch notification preferences" };
+  }
+};

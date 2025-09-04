@@ -13,7 +13,8 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
-import { Pill, Plus } from "lucide-react";
+import { Switch } from "./ui/switch";
+import { Pill, Plus, Bell } from "lucide-react";
 
 interface MedicationFormProps {
   onSubmit?: (medication: any) => void;
@@ -33,6 +34,8 @@ export default function MedicationForm({
     endDate: "",
     time: "",
     notes: "",
+    enableReminders: true,
+    reminderTime: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -164,6 +167,53 @@ export default function MedicationForm({
               }
               rows={3}
             />
+          </div>
+
+          {/* Reminder Settings */}
+          <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-2">
+              <Bell className="w-4 h-4 text-blue-600" />
+              <h4 className="font-medium text-blue-900">Reminder Settings</h4>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label
+                  htmlFor="enableReminders"
+                  className="text-sm font-medium"
+                >
+                  Enable Reminders
+                </Label>
+                <p className="text-xs text-gray-600">
+                  Get notified when it's time to give this medication
+                </p>
+              </div>
+              <Switch
+                id="enableReminders"
+                checked={formData.enableReminders}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, enableReminders: checked })
+                }
+              />
+            </div>
+
+            {formData.enableReminders && (
+              <div className="space-y-2">
+                <Label htmlFor="reminderTime">Reminder Time</Label>
+                <Input
+                  id="reminderTime"
+                  type="time"
+                  value={formData.reminderTime || formData.time}
+                  onChange={(e) =>
+                    setFormData({ ...formData, reminderTime: e.target.value })
+                  }
+                  placeholder="When to send reminder"
+                />
+                <p className="text-xs text-gray-600">
+                  Leave empty to use the same time as medication schedule
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-3 pt-4">

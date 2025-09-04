@@ -3,9 +3,11 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Bell, Calendar, Heart, Plus, Clock, CheckCircle2 } from "lucide-react";
 import PetCard from "./pet-card";
+import ReminderCard from "./reminder-card";
 
 interface DashboardOverviewProps {
   pets?: any[];
+  todaysReminders?: any[];
 }
 
 export default function DashboardOverview({
@@ -50,17 +52,24 @@ export default function DashboardOverview({
       ],
     },
   ],
+  todaysReminders = [],
 }: DashboardOverviewProps) {
   const totalPets = pets.length;
   const totalMedications = pets.reduce(
     (acc, pet) => acc + pet.medications.length,
     0,
   );
-  const dueMedications = pets.reduce(
-    (acc, pet) =>
-      acc + pet.medications.filter((med) => med.status === "due").length,
-    0,
-  );
+  const dueMedications = todaysReminders.filter(
+    (reminder) => reminder.status === "pending",
+  ).length;
+  const dueReminders = todaysReminders.filter((reminder) => {
+    const now = new Date();
+    const scheduledTime = new Date(reminder.scheduled_time);
+    return (
+      Math.abs(now.getTime() - scheduledTime.getTime()) < 30 * 60 * 1000 &&
+      reminder.status === "pending"
+    );
+  }).length;
 
   return (
     <div className="w-full max-w-6xl mx-auto bg-gray-50 min-h-screen p-6">
@@ -120,7 +129,7 @@ export default function DashboardOverview({
               <div>
                 <p className="text-sm font-medium text-gray-600">Due Now</p>
                 <p className="text-2xl font-bold text-red-600">
-                  {dueMedications}
+                  {dueReminders}
                 </p>
               </div>
               <Clock className="w-8 h-8 text-red-600" />
@@ -132,8 +141,12 @@ export default function DashboardOverview({
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">This Week</p>
-                <p className="text-2xl font-bold text-gray-900">12</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Today's Reminders
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {todaysReminders.length}
+                </p>
               </div>
               <Bell className="w-8 h-8 text-purple-600" />
             </div>
@@ -142,7 +155,7 @@ export default function DashboardOverview({
       </div>
 
       {/* Alert Banner */}
-      {dueMedications > 0 && (
+      {dueReminders > 0 && (
         <Card className="bg-red-50 border-red-200 mb-8">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -150,8 +163,8 @@ export default function DashboardOverview({
                 <Bell className="w-5 h-5 text-red-600" />
                 <div>
                   <p className="font-medium text-red-900">
-                    {dueMedications} medication{dueMedications > 1 ? "s" : ""}{" "}
-                    due now!
+                    {dueReminders} medication{dueReminders > 1 ? "s" : ""} due
+                    now!
                   </p>
                   <p className="text-sm text-red-700">
                     Don't forget to give your pets their scheduled medications.
@@ -164,6 +177,27 @@ export default function DashboardOverview({
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Today's Reminders */}
+      {todaysReminders.length > 0 && (
+        <div className="space-y-6 mb-8">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Today's Reminders
+            </h2>
+            <Badge variant="secondary">
+              {todaysReminders.length} reminder
+              {todaysReminders.length !== 1 ? "s" : ""}
+            </Badge>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {todaysReminders.map((reminder) => (
+              <ReminderCard key={reminder.id} reminder={reminder} />
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Pets Grid */}
