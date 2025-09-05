@@ -23,8 +23,9 @@ import {
 import { Heart, Plus, Edit, Trash2 } from "lucide-react";
 import PetCard from "@/components/pet-card";
 import PetProfileForm from "@/components/pet-profile-form";
-import { getPets, deletePetAction } from "@/app/actions";
+import { getPets, deletePetAction, checkUserSubscription } from "@/app/actions";
 import { createClient } from "../../../../supabase/client";
+import { useRouter } from "next/navigation";
 
 interface Pet {
   id: string;
@@ -41,6 +42,9 @@ export default function PetsPage() {
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
   const [deletingPetId, setDeletingPetId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const router = useRouter();
 
   const supabase = createClient();
 
@@ -64,7 +68,23 @@ export default function PetsPage() {
     fetchPets();
   }, []);
 
-  const handleAddPet = () => {
+  const handleAddPet = async () => {
+    // Check subscription limits before allowing to add
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        const isSubscribed = await checkUserSubscription(user.id);
+        if (!isSubscribed && pets.length >= 1) {
+          setShowUpgradeModal(true);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("Error checking subscription:", err);
+    }
+
     setEditingPet(null);
     setShowAddForm(true);
   };
@@ -248,6 +268,41 @@ export default function PetsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Upgrade Modal */}
+      <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upgrade to Premium</DialogTitle>
+            <DialogDescription>
+              You've reached your Free Plan limit. Upgrade to Premium for
+              unlimited pets and medications.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-medium text-blue-900 mb-2">
+                Premium Benefits:
+              </h4>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• Unlimited pets</li>
+                <li>• Unlimited medications</li>
+                <li>• Priority reminders</li>
+                <li>• Export medication history</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowUpgradeModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={() => router.push("/pricing")}>Upgrade Now</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

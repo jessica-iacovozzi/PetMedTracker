@@ -100,6 +100,9 @@ export default function DashboardOverview({
               Add Medication
             </Link>
           </Button>
+          <Button variant="outline" asChild>
+            <Link href="/pricing">Upgrade to Premium</Link>
+          </Button>
         </div>
       </div>
 

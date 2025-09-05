@@ -16,6 +16,16 @@ import { Textarea } from "./ui/textarea";
 import { Switch } from "./ui/switch";
 import { Pill, Plus, Bell, Edit } from "lucide-react";
 import { createMedicationAction, updateMedicationAction } from "@/app/actions";
+import { createClient } from "../../supabase/client";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { useRouter } from "next/navigation";
 
 interface Medication {
   id?: string;
@@ -62,6 +72,10 @@ export default function MedicationForm({
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const supabase = createClient();
+  const router = useRouter();
 
   const isEditing = !!medication?.id;
 
@@ -104,7 +118,12 @@ export default function MedicationForm({
       }
 
       if (result.error) {
-        setError(result.error);
+        // Check if it's a subscription limit error
+        if (result.error.includes("Free plan allows only 2 medications")) {
+          setShowUpgradeModal(true);
+        } else {
+          setError(result.error);
+        }
       } else {
         onSubmit(formData);
         onSuccess();
@@ -310,6 +329,41 @@ export default function MedicationForm({
           </form>
         </CardContent>
       </Card>
+
+      {/* Upgrade Modal */}
+      <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upgrade to Premium</DialogTitle>
+            <DialogDescription>
+              You've reached your Free Plan limit. Upgrade to Premium for
+              unlimited pets and medications.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-medium text-blue-900 mb-2">
+                Premium Benefits:
+              </h4>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• Unlimited pets</li>
+                <li>• Unlimited medications</li>
+                <li>• Priority reminders</li>
+                <li>• Export medication history</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowUpgradeModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={() => router.push("/pricing")}>Upgrade Now</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
