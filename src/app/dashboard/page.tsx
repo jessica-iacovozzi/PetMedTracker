@@ -4,7 +4,7 @@ import { createClient } from "../../../supabase/server";
 import { InfoIcon, UserCircle } from "lucide-react";
 import { redirect } from "next/navigation";
 import { SubscriptionCheck } from "@/components/subscription-check";
-import { getTodaysRemindersAction } from "@/app/actions";
+import { getTodaysRemindersAction, getPets } from "@/app/actions";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -17,15 +17,19 @@ export default async function Dashboard() {
     return redirect("/sign-in");
   }
 
-  // Get today's reminders
-  const remindersResult = await getTodaysRemindersAction();
+  // Get today's reminders and pets
+  const [remindersResult, pets] = await Promise.all([
+    getTodaysRemindersAction(),
+    getPets(user.id),
+  ]);
+
   const todaysReminders = remindersResult.success ? remindersResult.data : [];
 
   return (
     <SubscriptionCheck>
       <DashboardNavbar />
       <main className="w-full">
-        <DashboardOverview todaysReminders={todaysReminders} />
+        <DashboardOverview pets={pets} todaysReminders={todaysReminders} />
       </main>
     </SubscriptionCheck>
   );

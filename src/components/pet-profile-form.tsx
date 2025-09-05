@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -13,16 +13,31 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Heart, Upload, Plus } from "lucide-react";
+import { Heart, Upload, Plus, Edit } from "lucide-react";
+import { createPetAction, updatePetAction } from "@/app/actions";
+
+interface Pet {
+  id?: string;
+  name: string;
+  species: string;
+  breed?: string;
+  age?: string;
+  weight?: string;
+  photo?: string;
+}
 
 interface PetProfileFormProps {
-  onSubmit?: (pet: any) => void;
+  pet?: Pet;
+  onSubmit?: (pet: Pet) => void;
   onCancel?: () => void;
+  onSuccess?: () => void;
 }
 
 export default function PetProfileForm({
+  pet,
   onSubmit = () => {},
   onCancel = () => {},
+  onSuccess = () => {},
 }: PetProfileFormProps) {
   const [formData, setFormData] = useState({
     name: "",
@@ -34,10 +49,49 @@ export default function PetProfileForm({
   });
 
   const [previewPhoto, setPreviewPhoto] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const isEditing = !!pet?.id;
+
+  useEffect(() => {
+    if (pet) {
+      setFormData({
+        name: pet.name || "",
+        species: pet.species || "",
+        breed: pet.breed || "",
+        age: pet.age || "",
+        weight: pet.weight || "",
+        photo: pet.photo || "",
+      });
+      setPreviewPhoto(pet.photo || "");
+    }
+  }, [pet]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    setIsLoading(true);
+    setError("");
+
+    try {
+      let result;
+      if (isEditing && pet?.id) {
+        result = await updatePetAction(pet.id, formData);
+      } else {
+        result = await createPetAction(formData);
+      }
+
+      if (result.error) {
+        setError(result.error);
+      } else {
+        onSubmit(formData);
+        onSuccess();
+      }
+    } catch (err) {
+      setError("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,57 +108,59 @@ export default function PetProfileForm({
   };
 
   return (
-    <Card className="w-full max-w-lg bg-white border border-gray-200 shadow-sm">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-          <Heart className="w-5 h-5 text-blue-600" />
-          Add New Pet
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Photo Upload */}
-          <div className="flex flex-col items-center space-y-4">
-            <Avatar className="w-24 h-24">
-              <AvatarImage
-                src={
-                  previewPhoto ||
-                  "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&q=80"
-                }
-                alt="Pet photo"
-              />
-              <AvatarFallback className="bg-blue-100 text-blue-600 text-2xl">
-                🐾
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col items-center">
-              <Label htmlFor="photo" className="cursor-pointer">
-                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+    <div className="w-full max-w-md mx-auto bg-white">
+      <Card className="border border-gray-200 shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+            {isEditing ? (
+              <Edit className="w-5 h-5 text-blue-600" />
+            ) : (
+              <Heart className="w-5 h-5 text-blue-600" />
+            )}
+            {isEditing ? "Edit Pet" : "Add New Pet"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Photo Upload */}
+            <div className="flex flex-col items-center space-y-4">
+              <Avatar className="w-20 h-20">
+                <AvatarImage src={previewPhoto} alt="Pet photo" />
+                <AvatarFallback className="bg-gray-100 text-gray-600">
+                  {formData.name ? formData.name.charAt(0).toUpperCase() : "?"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  id="photo-upload"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
                   <Upload className="w-4 h-4" />
                   Upload Photo
-                </div>
-              </Label>
-              <Input
-                id="photo"
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoChange}
-                className="hidden"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Optional - Add a photo of your pet
-              </p>
+                </Button>
+              </div>
             </div>
-          </div>
 
-          {/* Basic Info */}
-          <div className="space-y-4">
+            {/* Pet Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Pet Name *</Label>
               <Input
                 id="name"
-                placeholder="e.g., Buddy, Whiskers, Charlie"
+                placeholder="e.g., Buddy, Whiskers"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
@@ -113,49 +169,51 @@ export default function PetProfileForm({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="species">Species *</Label>
-                <Select
-                  value={formData.species}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, species: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select species" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="dog">Dog</SelectItem>
-                    <SelectItem value="cat">Cat</SelectItem>
-                    <SelectItem value="bird">Bird</SelectItem>
-                    <SelectItem value="rabbit">Rabbit</SelectItem>
-                    <SelectItem value="hamster">Hamster</SelectItem>
-                    <SelectItem value="fish">Fish</SelectItem>
-                    <SelectItem value="reptile">Reptile</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="breed">Breed</Label>
-                <Input
-                  id="breed"
-                  placeholder="e.g., Golden Retriever"
-                  value={formData.breed}
-                  onChange={(e) =>
-                    setFormData({ ...formData, breed: e.target.value })
-                  }
-                />
-              </div>
+            {/* Species */}
+            <div className="space-y-2">
+              <Label htmlFor="species">Species *</Label>
+              <Select
+                value={formData.species}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, species: value })
+                }
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select species" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="dog">Dog</SelectItem>
+                  <SelectItem value="cat">Cat</SelectItem>
+                  <SelectItem value="bird">Bird</SelectItem>
+                  <SelectItem value="rabbit">Rabbit</SelectItem>
+                  <SelectItem value="hamster">Hamster</SelectItem>
+                  <SelectItem value="fish">Fish</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
+            {/* Breed */}
+            <div className="space-y-2">
+              <Label htmlFor="breed">Breed (Optional)</Label>
+              <Input
+                id="breed"
+                placeholder="e.g., Golden Retriever, Persian"
+                value={formData.breed}
+                onChange={(e) =>
+                  setFormData({ ...formData, breed: e.target.value })
+                }
+              />
+            </div>
+
+            {/* Age and Weight */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="age">Age</Label>
+                <Label htmlFor="age">Age (Optional)</Label>
                 <Input
                   id="age"
-                  placeholder="e.g., 3 years, 6 months"
+                  placeholder="e.g., 3 years"
                   value={formData.age}
                   onChange={(e) =>
                     setFormData({ ...formData, age: e.target.value })
@@ -163,10 +221,10 @@ export default function PetProfileForm({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="weight">Weight</Label>
+                <Label htmlFor="weight">Weight (Optional)</Label>
                 <Input
                   id="weight"
-                  placeholder="e.g., 25 lbs, 4.5 kg"
+                  placeholder="e.g., 25 lbs"
                   value={formData.weight}
                   onChange={(e) =>
                     setFormData({ ...formData, weight: e.target.value })
@@ -174,19 +232,29 @@ export default function PetProfileForm({
                 />
               </div>
             </div>
-          </div>
 
-          <div className="flex gap-3 pt-4">
-            <Button type="submit" className="flex-1">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Pet
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button type="submit" className="flex-1" disabled={isLoading}>
+                {isEditing ? (
+                  <Edit className="w-4 h-4 mr-2" />
+                ) : (
+                  <Plus className="w-4 h-4 mr-2" />
+                )}
+                {isLoading ? "Saving..." : isEditing ? "Update Pet" : "Add Pet"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

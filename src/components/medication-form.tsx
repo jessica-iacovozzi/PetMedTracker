@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -14,96 +14,188 @@ import {
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { Switch } from "./ui/switch";
-import { Pill, Plus, Bell } from "lucide-react";
+import { Pill, Plus, Bell, Edit } from "lucide-react";
+import { createMedicationAction, updateMedicationAction } from "@/app/actions";
+
+interface Medication {
+  id?: string;
+  pet_id: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  timing: string;
+  duration?: string;
+}
+
+interface Pet {
+  id: string;
+  name: string;
+  species: string;
+}
 
 interface MedicationFormProps {
+  medication?: Medication;
+  pets?: Pet[];
   onSubmit?: (medication: any) => void;
   onCancel?: () => void;
+  onSuccess?: () => void;
 }
 
 export default function MedicationForm({
+  medication,
+  pets = [],
   onSubmit = () => {},
   onCancel = () => {},
+  onSuccess = () => {},
 }: MedicationFormProps) {
   const [formData, setFormData] = useState({
     petId: "",
     name: "",
     dosage: "",
     frequency: "",
-    startDate: "",
-    endDate: "",
-    time: "",
+    timing: "",
+    duration: "",
     notes: "",
     enableReminders: true,
     reminderTime: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const isEditing = !!medication?.id;
+
+  useEffect(() => {
+    if (medication) {
+      setFormData({
+        petId: medication.pet_id || "",
+        name: medication.name || "",
+        dosage: medication.dosage || "",
+        frequency: medication.frequency || "",
+        timing: medication.timing || "",
+        duration: medication.duration || "",
+        notes: "",
+        enableReminders: true,
+        reminderTime: "",
+      });
+    }
+  }, [medication]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const medicationData = {
+        petId: formData.petId,
+        name: formData.name,
+        dosage: formData.dosage,
+        frequency: formData.frequency,
+        timing: formData.timing,
+        duration: formData.duration,
+      };
+
+      let result;
+      if (isEditing && medication?.id) {
+        result = await updateMedicationAction(medication.id, medicationData);
+      } else {
+        result = await createMedicationAction(medicationData);
+      }
+
+      if (result.error) {
+        setError(result.error);
+      } else {
+        onSubmit(formData);
+        onSuccess();
+      }
+    } catch (err) {
+      setError("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <Card className="w-full max-w-lg bg-white border border-gray-200 shadow-sm">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-          <Pill className="w-5 h-5 text-blue-600" />
-          Add New Medication
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="pet">Select Pet</Label>
-            <Select
-              value={formData.petId}
-              onValueChange={(value) =>
-                setFormData({ ...formData, petId: value })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a pet" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">Buddy (Dog)</SelectItem>
-                <SelectItem value="2">Whiskers (Cat)</SelectItem>
-                <SelectItem value="3">Charlie (Dog)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="name">Medication Name</Label>
-            <Input
-              id="name"
-              placeholder="e.g., Heartgard Plus"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+    <div className="w-full max-w-lg mx-auto bg-white">
+      <Card className="border border-gray-200 shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+            {isEditing ? (
+              <Edit className="w-5 h-5 text-blue-600" />
+            ) : (
+              <Pill className="w-5 h-5 text-blue-600" />
+            )}
+            {isEditing ? "Edit Medication" : "Add New Medication"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Pet Selection */}
             <div className="space-y-2">
-              <Label htmlFor="dosage">Dosage</Label>
+              <Label htmlFor="pet">Select Pet *</Label>
+              <Select
+                value={formData.petId}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, petId: value })
+                }
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a pet" />
+                </SelectTrigger>
+                <SelectContent>
+                  {pets.map((pet) => (
+                    <SelectItem key={pet.id} value={pet.id}>
+                      {pet.name} ({pet.species})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Medication Name */}
+            <div className="space-y-2">
+              <Label htmlFor="name">Medication Name *</Label>
+              <Input
+                id="name"
+                placeholder="e.g., Heartgard Plus, Apoquel"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            {/* Dosage */}
+            <div className="space-y-2">
+              <Label htmlFor="dosage">Dosage *</Label>
               <Input
                 id="dosage"
-                placeholder="e.g., 1 tablet, 5mg"
+                placeholder="e.g., 1 tablet, 5mg, 2ml"
                 value={formData.dosage}
                 onChange={(e) =>
                   setFormData({ ...formData, dosage: e.target.value })
                 }
+                required
               />
             </div>
+
+            {/* Frequency */}
             <div className="space-y-2">
-              <Label htmlFor="frequency">Frequency</Label>
+              <Label htmlFor="frequency">Frequency *</Label>
               <Select
                 value={formData.frequency}
                 onValueChange={(value) =>
                   setFormData({ ...formData, frequency: value })
                 }
+                required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="How often?" />
@@ -117,116 +209,107 @@ export default function MedicationForm({
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startDate">Start Date</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={formData.startDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, startDate: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="time">Time</Label>
-              <Input
-                id="time"
-                type="time"
-                value={formData.time}
-                onChange={(e) =>
-                  setFormData({ ...formData, time: e.target.value })
-                }
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="endDate">End Date (Optional)</Label>
-            <Input
-              id="endDate"
-              type="date"
-              value={formData.endDate}
-              onChange={(e) =>
-                setFormData({ ...formData, endDate: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
-            <Textarea
-              id="notes"
-              placeholder="Special instructions, side effects to watch for, etc."
-              value={formData.notes}
-              onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
-              }
-              rows={3}
-            />
-          </div>
-
-          {/* Reminder Settings */}
-          <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-blue-600" />
-              <h4 className="font-medium text-blue-900">Reminder Settings</h4>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label
-                  htmlFor="enableReminders"
-                  className="text-sm font-medium"
-                >
-                  Enable Reminders
-                </Label>
-                <p className="text-xs text-gray-600">
-                  Get notified when it's time to give this medication
-                </p>
-              </div>
-              <Switch
-                id="enableReminders"
-                checked={formData.enableReminders}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, enableReminders: checked })
-                }
-              />
-            </div>
-
-            {formData.enableReminders && (
+            {/* Timing and Duration */}
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="reminderTime">Reminder Time</Label>
+                <Label htmlFor="timing">Time of Day</Label>
                 <Input
-                  id="reminderTime"
+                  id="timing"
                   type="time"
-                  value={formData.reminderTime || formData.time}
+                  value={formData.timing}
                   onChange={(e) =>
-                    setFormData({ ...formData, reminderTime: e.target.value })
+                    setFormData({ ...formData, timing: e.target.value })
                   }
-                  placeholder="When to send reminder"
+                  required
                 />
-                <p className="text-xs text-gray-600">
-                  Leave empty to use the same time as medication schedule
-                </p>
               </div>
-            )}
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="duration">Duration (Optional)</Label>
+                <Input
+                  id="duration"
+                  placeholder="e.g., 7 days, 2 weeks"
+                  value={formData.duration}
+                  onChange={(e) =>
+                    setFormData({ ...formData, duration: e.target.value })
+                  }
+                />
+              </div>
+            </div>
 
-          <div className="flex gap-3 pt-4">
-            <Button type="submit" className="flex-1">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Medication
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+            {/* Notes */}
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Textarea
+                id="notes"
+                placeholder="Special instructions, side effects to watch for, etc."
+                value={formData.notes}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
+                rows={3}
+              />
+            </div>
+
+            {/* Reminder Settings */}
+            <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-blue-600" />
+                  <Label htmlFor="reminders" className="font-medium">
+                    Enable Reminders
+                  </Label>
+                </div>
+                <Switch
+                  id="reminders"
+                  checked={formData.enableReminders}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, enableReminders: checked })
+                  }
+                />
+              </div>
+              {formData.enableReminders && (
+                <div className="space-y-2">
+                  <Label htmlFor="reminderTime">Reminder Time</Label>
+                  <Input
+                    id="reminderTime"
+                    type="time"
+                    value={formData.reminderTime}
+                    onChange={(e) =>
+                      setFormData({ ...formData, reminderTime: e.target.value })
+                    }
+                    placeholder="When to send reminder"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button type="submit" className="flex-1" disabled={isLoading}>
+                {isEditing ? (
+                  <Edit className="w-4 h-4 mr-2" />
+                ) : (
+                  <Plus className="w-4 h-4 mr-2" />
+                )}
+                {isLoading
+                  ? "Saving..."
+                  : isEditing
+                    ? "Update Medication"
+                    : "Add Medication"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

@@ -2,13 +2,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Clock, Pill, CheckCircle2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import {
+  Clock,
+  Pill,
+  CheckCircle2,
+  MoreVertical,
+  Edit,
+  Trash2,
+  Plus,
+} from "lucide-react";
 
 interface Medication {
   id: string;
   name: string;
   dosage: string;
-  nextDose: string;
+  nextDose?: string;
   status: "due" | "upcoming" | "given";
 }
 
@@ -17,11 +31,14 @@ interface Pet {
   name: string;
   species: string;
   photo?: string;
-  medications: Medication[];
+  medications?: Medication[];
 }
 
 interface PetCardProps {
   pet?: Pet;
+  onEdit?: (pet: Pet) => void;
+  onDelete?: (petId: string) => void;
+  onAddMedication?: (petId: string) => void;
 }
 
 export default function PetCard({
@@ -48,103 +65,161 @@ export default function PetCard({
       },
     ],
   },
+  onEdit = () => {},
+  onDelete = () => {},
+  onAddMedication = () => {},
 }: PetCardProps) {
-  const dueMedications = pet.medications.filter((med) => med.status === "due");
-  const upcomingMedications = pet.medications.filter(
-    (med) => med.status === "upcoming",
-  );
+  const dueMedications =
+    pet.medications?.filter((med) => med.status === "due").length || 0;
+  const upcomingMedications =
+    pet.medications?.filter((med) => med.status === "upcoming").length || 0;
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "due":
+        return "bg-red-100 text-red-800";
+      case "upcoming":
+        return "bg-blue-100 text-blue-800";
+      case "given":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
   return (
-    <Card className="w-full max-w-md bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="pb-4">
-        <div className="flex items-center gap-3">
-          <Avatar className="w-12 h-12">
-            <AvatarImage src={pet.photo} alt={pet.name} />
-            <AvatarFallback className="bg-blue-100 text-blue-600 font-semibold">
-              {pet.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <CardTitle className="text-lg font-semibold text-gray-900">
-              {pet.name}
-            </CardTitle>
-            <p className="text-sm text-gray-600">{pet.species}</p>
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {dueMedications.length > 0 && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-red-600 flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              Due Now ({dueMedications.length})
-            </h4>
-            {dueMedications.map((med) => (
-              <div
-                key={med.id}
-                className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200"
-              >
-                <div className="flex items-center gap-2">
-                  <Pill className="w-4 h-4 text-red-600" />
-                  <div>
-                    <p className="font-medium text-sm text-gray-900">
-                      {med.name}
-                    </p>
-                    <p className="text-xs text-gray-600">
-                      {med.dosage} • {med.nextDose}
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                >
-                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                  Mark Given
+    <div className="w-full max-w-sm mx-auto bg-white">
+      <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar className="w-12 h-12">
+                <AvatarImage src={pet.photo} alt={pet.name} />
+                <AvatarFallback className="bg-blue-100 text-blue-600 font-semibold">
+                  {pet.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <CardTitle className="text-lg font-semibold text-gray-900">
+                  {pet.name}
+                </CardTitle>
+                <p className="text-sm text-gray-600">{pet.species}</p>
+              </div>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreVertical className="h-4 w-4" />
                 </Button>
-              </div>
-            ))}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onAddMedication(pet.id)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Medication
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onEdit(pet)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Pet
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onDelete(pet.id)}
+                  className="text-red-600 focus:text-red-600"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Pet
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        )}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Status Summary */}
+          <div className="flex gap-2">
+            {dueMedications > 0 && (
+              <Badge className="bg-red-100 text-red-800 text-xs">
+                {dueMedications} due
+              </Badge>
+            )}
+            {upcomingMedications > 0 && (
+              <Badge className="bg-blue-100 text-blue-800 text-xs">
+                {upcomingMedications} upcoming
+              </Badge>
+            )}
+            {(!pet.medications || pet.medications.length === 0) && (
+              <Badge className="bg-gray-100 text-gray-600 text-xs">
+                No medications
+              </Badge>
+            )}
+          </div>
 
-        {upcomingMedications.length > 0 && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-blue-600 flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              Upcoming ({upcomingMedications.length})
-            </h4>
-            {upcomingMedications.map((med) => (
-              <div
-                key={med.id}
-                className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200"
-              >
-                <div className="flex items-center gap-2">
-                  <Pill className="w-4 h-4 text-blue-600" />
-                  <div>
-                    <p className="font-medium text-sm text-gray-900">
-                      {med.name}
-                    </p>
-                    <p className="text-xs text-gray-600">
-                      {med.dosage} • {med.nextDose}
-                    </p>
+          {/* Medications List */}
+          {pet.medications && pet.medications.length > 0 ? (
+            <div className="space-y-3">
+              {pet.medications.slice(0, 3).map((medication) => (
+                <div
+                  key={medication.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white rounded-full">
+                      <Pill className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {medication.name}
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        {medication.dosage}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <Badge className={getStatusColor(medication.status)}>
+                      {medication.status}
+                    </Badge>
+                    {medication.nextDose && (
+                      <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {medication.nextDose}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <Badge variant="secondary" className="text-xs">
-                  {med.nextDose}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+              {pet.medications.length > 3 && (
+                <p className="text-xs text-gray-500 text-center">
+                  +{pet.medications.length - 3} more medications
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-6">
+              <Pill className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+              <p className="text-sm text-gray-600 mb-3">
+                No medications added yet
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onAddMedication(pet.id)}
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Add Medication
+              </Button>
+            </div>
+          )}
 
-        {pet.medications.length === 0 && (
-          <div className="text-center py-6 text-gray-500">
-            <Pill className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No medications scheduled</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          {/* Quick Actions */}
+          {dueMedications > 0 && (
+            <div className="pt-2 border-t border-gray-100">
+              <Button size="sm" className="w-full bg-red-600 hover:bg-red-700">
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Mark {dueMedications} as Given
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

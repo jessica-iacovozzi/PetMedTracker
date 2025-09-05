@@ -1,9 +1,13 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Bell, Calendar, Heart, Plus, Clock, CheckCircle2 } from "lucide-react";
 import PetCard from "./pet-card";
 import ReminderCard from "./reminder-card";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface DashboardOverviewProps {
   pets?: any[];
@@ -11,52 +15,13 @@ interface DashboardOverviewProps {
 }
 
 export default function DashboardOverview({
-  pets = [
-    {
-      id: "1",
-      name: "Buddy",
-      species: "Dog",
-      photo:
-        "https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&q=80",
-      medications: [
-        {
-          id: "1",
-          name: "Heartgard Plus",
-          dosage: "1 tablet",
-          nextDose: "2:00 PM",
-          status: "due",
-        },
-        {
-          id: "2",
-          name: "Apoquel",
-          dosage: "16mg",
-          nextDose: "6:00 PM",
-          status: "upcoming",
-        },
-      ],
-    },
-    {
-      id: "2",
-      name: "Whiskers",
-      species: "Cat",
-      photo:
-        "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&q=80",
-      medications: [
-        {
-          id: "3",
-          name: "Flea Treatment",
-          dosage: "1 application",
-          nextDose: "Tomorrow 9:00 AM",
-          status: "upcoming",
-        },
-      ],
-    },
-  ],
+  pets = [],
   todaysReminders = [],
 }: DashboardOverviewProps) {
+  const router = useRouter();
   const totalPets = pets.length;
   const totalMedications = pets.reduce(
-    (acc, pet) => acc + pet.medications.length,
+    (acc, pet) => acc + (pet.medications?.length || 0),
     0,
   );
   const dueMedications = todaysReminders.filter(
@@ -82,13 +47,17 @@ export default function DashboardOverview({
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Pet
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/pets">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Pet
+            </Link>
           </Button>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Medication
+          <Button asChild>
+            <Link href="/dashboard/medications">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Medication
+            </Link>
           </Button>
         </div>
       </div>
@@ -171,8 +140,8 @@ export default function DashboardOverview({
                   </p>
                 </div>
               </div>
-              <Button size="sm" className="bg-red-600 hover:bg-red-700">
-                View All
+              <Button size="sm" className="bg-red-600 hover:bg-red-700" asChild>
+                <Link href="/dashboard">View All</Link>
               </Button>
             </div>
           </CardContent>
@@ -225,9 +194,11 @@ export default function DashboardOverview({
               <p className="text-gray-600 mb-6">
                 Start by adding your first pet to track their medications.
               </p>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Your First Pet
+              <Button asChild>
+                <Link href="/dashboard/pets">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Your First Pet
+                </Link>
               </Button>
             </CardContent>
           </Card>
