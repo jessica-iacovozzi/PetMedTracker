@@ -3,7 +3,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Bell, Calendar, Heart, Plus, Clock, CheckCircle2 } from "lucide-react";
+import {
+  Bell,
+  Calendar,
+  Heart,
+  Plus,
+  Clock,
+  CheckCircle2,
+  AlertTriangle,
+} from "lucide-react";
 import PetCard from "./pet-card";
 import ReminderCard from "./reminder-card";
 import Link from "next/link";
@@ -24,17 +32,50 @@ export default function DashboardOverview({
     (acc, pet) => acc + (pet.medications?.length || 0),
     0,
   );
-  const dueMedications = todaysReminders.filter(
+
+  // Calculate different reminder statuses
+  const now = new Date();
+  const pendingReminders = todaysReminders.filter(
     (reminder) => reminder.status === "pending",
-  ).length;
-  const dueReminders = todaysReminders.filter((reminder) => {
-    const now = new Date();
+  );
+
+  const overdueReminders = pendingReminders.filter((reminder) => {
     const scheduledTime = new Date(reminder.scheduled_time);
-    return (
-      Math.abs(now.getTime() - scheduledTime.getTime()) < 30 * 60 * 1000 &&
-      reminder.status === "pending"
-    );
-  }).length;
+    return now > scheduledTime;
+  });
+
+  const upcomingReminders = pendingReminders.filter((reminder) => {
+    const scheduledTime = new Date(reminder.scheduled_time);
+    const timeDiff = scheduledTime.getTime() - now.getTime();
+    return timeDiff > 0 && timeDiff <= 2 * 60 * 60 * 1000; // Next 2 hours
+  });
+
+  const givenReminders = todaysReminders.filter(
+    (reminder) => reminder.status === "given",
+  );
+
+  const missedReminders = todaysReminders.filter(
+    (reminder) => reminder.status === "missed",
+  );
+
+  // Group reminders by time periods
+  const groupRemindersByTime = (reminders: any[]) => {
+    const morning = reminders.filter((r) => {
+      const hour = new Date(r.scheduled_time).getHours();
+      return hour >= 6 && hour < 12;
+    });
+    const afternoon = reminders.filter((r) => {
+      const hour = new Date(r.scheduled_time).getHours();
+      return hour >= 12 && hour < 18;
+    });
+    const evening = reminders.filter((r) => {
+      const hour = new Date(r.scheduled_time).getHours();
+      return hour >= 18 || hour < 6;
+    });
+    return { morning, afternoon, evening };
+  };
+
+  const groupedReminders = groupRemindersByTime(todaysReminders);
 
   return (
     <div className="w-full max-w-6xl mx-auto bg-gray-50 min-h-screen p-6">
@@ -96,12 +137,12 @@ export default function DashboardOverview({
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Due Now</p>
+                <p className="text-sm font-medium text-gray-600">Overdue</p>
                 <p className="text-2xl font-bold text-red-600">
-                  {dueReminders}
+                  {overdueReminders.length}
                 </p>
               </div>
-              <Clock className="w-8 h-8 text-red-600" />
+              <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
           </CardContent>
         </Card>
@@ -111,62 +152,119 @@ export default function DashboardOverview({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">
-                  Today's Reminders
+                  Upcoming (2hrs)
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {todaysReminders.length}
+                <p className="text-2xl font-bold text-orange-600">
+                  {upcomingReminders.length}
                 </p>
               </div>
-              <Bell className="w-8 h-8 text-purple-600" />
+              <Clock className="w-8 h-8 text-orange-600" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Alert Banner */}
-      {dueReminders > 0 && (
-        <Card className="bg-red-50 border-red-200 mb-8">
+      {/* Alert Banners */}
+      {overdueReminders.length > 0 && (
+        <Card className="bg-red-50 border-red-200 mb-6">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Bell className="w-5 h-5 text-red-600" />
+                <AlertTriangle className="w-5 h-5 text-red-600" />
                 <div>
                   <p className="font-medium text-red-900">
-                    {dueReminders} medication{dueReminders > 1 ? "s" : ""} due
-                    now!
+                    {overdueReminders.length} medication
+                    {overdueReminders.length > 1 ? "s" : ""} overdue!
                   </p>
                   <p className="text-sm text-red-700">
-                    Don't forget to give your pets their scheduled medications.
+                    These medications are past their scheduled time.
                   </p>
                 </div>
               </div>
-              <Button size="sm" className="bg-red-600 hover:bg-red-700" asChild>
-                <Link href="/dashboard">View All</Link>
-              </Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Today's Reminders */}
-      {todaysReminders.length > 0 && (
+      {upcomingReminders.length > 0 && overdueReminders.length === 0 && (
+        <Card className="bg-orange-50 border-orange-200 mb-6">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Clock className="w-5 h-5 text-orange-600" />
+                <div>
+                  <p className="font-medium text-orange-900">
+                    {upcomingReminders.length} medication
+                    {upcomingReminders.length > 1 ? "s" : ""} due soon
+                  </p>
+                  <p className="text-sm text-orange-700">
+                    Prepare for upcoming doses in the next 2 hours.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Today's Medication Schedule */}
+      {todaysReminders.length > 0 ? (
         <div className="space-y-6 mb-8">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">
-              Today's Reminders
+              Today's Medication Schedule
             </h2>
-            <Badge variant="secondary">
-              {todaysReminders.length} reminder
-              {todaysReminders.length !== 1 ? "s" : ""}
-            </Badge>
+            <div className="flex gap-2">
+              <Badge variant="secondary">{todaysReminders.length} total</Badge>
+              <Badge className="bg-green-100 text-green-800">
+                {givenReminders.length} given
+              </Badge>
+              {pendingReminders.length > 0 && (
+                <Badge className="bg-blue-100 text-blue-800">
+                  {pendingReminders.length} pending
+                </Badge>
+              )}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {todaysReminders.map((reminder) => (
-              <ReminderCard key={reminder.id} reminder={reminder} />
-            ))}
-          </div>
+          {/* Group by time periods */}
+          {Object.entries(groupedReminders).map(([period, reminders]) => {
+            if (reminders.length === 0) return null;
+
+            return (
+              <div key={period} className="space-y-4">
+                <h3 className="text-lg font-medium text-gray-800 capitalize flex items-center gap-2">
+                  {period === "morning" && <span>🌅</span>}
+                  {period === "afternoon" && <span>☀️</span>}
+                  {period === "evening" && <span>🌙</span>}
+                  {period} ({reminders.length})
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {reminders.map((reminder) => (
+                    <ReminderCard
+                      key={reminder.id}
+                      reminder={reminder}
+                      onMarkAsGiven={() => router.refresh()}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
+      ) : (
+        <Card className="bg-white border border-gray-200 mb-8">
+          <CardContent className="p-12 text-center">
+            <Bell className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No medications due today!
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Your pets are all set for today. Great job staying on top of their
+              care!
+            </p>
+          </CardContent>
+        </Card>
       )}
 
       {/* Pets Grid */}

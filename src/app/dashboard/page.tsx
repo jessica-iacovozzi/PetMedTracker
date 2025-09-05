@@ -17,8 +17,20 @@ export default async function Dashboard() {
     return redirect("/sign-in");
   }
 
-  // Get today's reminders and pets
-  const [remindersResult, pets] = await Promise.all([
+  // Check if user has completed onboarding (has pets)
+  const { data: pets } = await supabase
+    .from("pets")
+    .select("id")
+    .eq("user_id", user.id)
+    .limit(1);
+
+  // If no pets, redirect to onboarding
+  if (!pets || pets.length === 0) {
+    return redirect("/onboarding");
+  }
+
+  // Get today's reminders and all pets
+  const [remindersResult, allPets] = await Promise.all([
     getTodaysRemindersAction(),
     getPets(user.id),
   ]);
@@ -29,7 +41,7 @@ export default async function Dashboard() {
     <SubscriptionCheck>
       <DashboardNavbar />
       <main className="w-full">
-        <DashboardOverview pets={pets} todaysReminders={todaysReminders} />
+        <DashboardOverview pets={allPets} todaysReminders={todaysReminders} />
       </main>
     </SubscriptionCheck>
   );

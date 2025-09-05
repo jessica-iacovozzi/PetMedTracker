@@ -20,6 +20,7 @@ const getURL = () => {
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
+  const fullName = formData.get("full_name")?.toString();
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
@@ -32,6 +33,10 @@ export const signUpAction = async (formData: FormData) => {
     password,
     options: {
       emailRedirectTo: `${origin}/auth/callback`,
+      data: {
+        full_name: fullName,
+        name: fullName,
+      },
     },
   });
 
@@ -52,13 +57,27 @@ export const signInAction = async (formData: FormData) => {
   const password = formData.get("password") as string;
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { error, data } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
     return encodedRedirect("error", "/sign-in", error.message);
+  }
+
+  // Check if user has completed onboarding (has pets)
+  if (data.user) {
+    const { data: pets } = await supabase
+      .from("pets")
+      .select("id")
+      .eq("user_id", data.user.id)
+      .limit(1);
+
+    // If no pets, redirect to onboarding
+    if (!pets || pets.length === 0) {
+      return redirect("/onboarding");
+    }
   }
 
   return redirect("/dashboard");
