@@ -1,0 +1,21 @@
+# Global code owners
+* @team-leads
+
+# CI/CD and deployment
+/.github/ @devops-team
+/playwright.config.ts @qa-team
+/e2e/ @qa-team
+
+# Database and migrations
+/supabase/ @backend-team
+
+# Frontend components
+/src/components/ @frontend-team
+
+# API routes
+/src/app/api/ @backend-team
+
+# Configuration files
+/package.json @team-leads
+/tsconfig.json @team-leads
+/tailwind.config.ts @frontend-team
