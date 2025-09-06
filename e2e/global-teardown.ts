@@ -9,19 +9,28 @@ async function globalTeardown(config: FullConfig) {
 
   try {
     // Clean up test data
-    await page.goto("http://localhost:3000");
+    await page.goto("http://localhost:3000", { timeout: 30000 });
 
     // Clear notification logs
-    await page.request.delete("/api/test/mock/notifications");
+    try {
+      await page.request.delete("/api/test/mock/notifications");
+    } catch (error) {
+      console.warn("⚠️ Failed to clear notification logs:", error);
+    }
 
     // Reset database to clean state
-    await page.request.post("/api/test/reset-db", {
-      data: { clearAll: true },
-    });
+    try {
+      await page.request.post("/api/test/reset-db", {
+        data: { clearAll: true },
+      });
+    } catch (error) {
+      console.warn("⚠️ Failed to reset database:", error);
+    }
 
     console.log("✅ Test cleanup completed");
   } catch (error) {
     console.error("❌ Global teardown failed:", error);
+    // Don't throw error in teardown to avoid masking test failures
   } finally {
     await browser.close();
   }

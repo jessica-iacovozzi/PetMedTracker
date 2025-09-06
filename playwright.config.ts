@@ -59,6 +59,12 @@ export default defineConfig({
   globalSetup: require.resolve("./e2e/global-setup"),
   globalTeardown: require.resolve("./e2e/global-teardown"),
 
+  /* Expect options */
+  expect: {
+    /* Maximum time expect() should wait for the condition to be met. */
+    timeout: 5000,
+  },
+
   /* Run your local dev server before starting the tests */
   webServer: {
     command: "npm run dev",

@@ -6,6 +6,11 @@ if (process.env.NODE_ENV === "production") {
   throw new Error("Test endpoints are not available in production");
 }
 
+// Additional safety check for CI environment
+if (process.env.CI && !process.env.NODE_ENV?.includes("test")) {
+  console.warn("⚠️ Test endpoint accessed in CI without test environment");
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
