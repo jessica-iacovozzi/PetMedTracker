@@ -1,0 +1,228 @@
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import PetProfileForm from "@/components/pet-profile-form";
+import * as actions from "@/app/actions";
+
+// Mock the actions
+jest.mock("@/app/actions", () => ({
+  createPetAction: jest.fn(),
+  updatePetAction: jest.fn(),
+  checkUserSubscription: jest.fn(),
+}));
+
+// Mock Next.js router
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    refresh: jest.fn(),
+  }),
+}));
+
+const mockActions = actions as jest.Mocked<typeof actions>;
+
+describe("PetProfileForm", () => {
+  const mockOnSubmit = jest.fn();
+  const mockOnCancel = jest.fn();
+  const mockOnSuccess = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockActions.createPetAction.mockResolvedValue({ success: true, data: {} });
+    mockActions.updatePetAction.mockResolvedValue({ success: true, data: {} });
+    mockActions.checkUserSubscription.mockResolvedValue(false);
+  });
+
+  it("renders form fields correctly", () => {
+    render(
+      <PetProfileForm
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+        onSuccess={mockOnSuccess}
+      />,
+    );
+
+    expect(screen.getByLabelText(/pet name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/species/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/breed/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /add pet/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
+  });
+
+  it("validates required fields", async () => {
+    const user = userEvent.setup();
+    render(
+      <PetProfileForm
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+        onSuccess={mockOnSuccess}
+      />,
+    );
+
+    const submitButton = screen.getByRole("button", { name: /add pet/i });
+    await user.click(submitButton);
+
+    // Form should not submit without required fields
+    expect(mockActions.createPetAction).not.toHaveBeenCalled();
+  });
+
+  it("creates a new pet successfully", async () => {
+    const user = userEvent.setup();
+    render(
+      <PetProfileForm
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+        onSuccess={mockOnSuccess}
+      />,
+    );
+
+    // Fill in required fields
+    await user.type(screen.getByLabelText(/pet name/i), "Buddy");
+
+    // Click on the select trigger to open dropdown
+    const selectTrigger = screen.getByRole("combobox");
+    await user.click(selectTrigger);
+
+    // Wait for options to appear and click on dog option
+    await waitFor(() => {
+      const dogOption = screen.getByRole("option", { name: /dog/i });
+      expect(dogOption).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole("option", { name: /dog/i }));
+
+    // Submit form
+    await user.click(screen.getByRole("button", { name: /add pet/i }));
+
+    await waitFor(() => {
+      expect(mockActions.createPetAction).toHaveBeenCalledWith({
+        name: "Buddy",
+        species: "dog",
+        breed: "",
+        age: "",
+        weight: "",
+        photo: "",
+      });
+    });
+
+    expect(mockOnSuccess).toHaveBeenCalled();
+  });
+
+  it("shows upgrade modal when free plan limit is reached", async () => {
+    const user = userEvent.setup();
+    mockActions.createPetAction.mockResolvedValue({
+      error: "Free plan allows only 1 pet. Please upgrade to add more pets.",
+    });
+
+    render(
+      <PetProfileForm
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+        onSuccess={mockOnSuccess}
+      />,
+    );
+
+    // Fill in required fields
+    await user.type(screen.getByLabelText(/pet name/i), "Buddy");
+    const selectTrigger = screen.getByRole("combobox");
+    await user.click(selectTrigger);
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: /dog/i })).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole("option", { name: /dog/i }));
+
+    // Submit form
+    await user.click(screen.getByRole("button", { name: /add pet/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/upgrade to premium/i)).toBeInTheDocument();
+    });
+  });
+
+  it("updates existing pet when in edit mode", async () => {
+    const user = userEvent.setup();
+    const existingPet = {
+      id: "1",
+      name: "Buddy",
+      species: "dog",
+      breed: "Golden Retriever",
+      age: "3 years",
+      weight: "65 lbs",
+    };
+
+    render(
+      <PetProfileForm
+        pet={existingPet}
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+        onSuccess={mockOnSuccess}
+      />,
+    );
+
+    // Verify form is pre-filled
+    expect(screen.getByDisplayValue("Buddy")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Golden Retriever")).toBeInTheDocument();
+
+    // Update name
+    const nameInput = screen.getByLabelText(/pet name/i);
+    await user.clear(nameInput);
+    await user.type(nameInput, "Max");
+
+    // Submit form
+    await user.click(screen.getByRole("button", { name: /update pet/i }));
+
+    await waitFor(() => {
+      expect(mockActions.updatePetAction).toHaveBeenCalledWith("1", {
+        name: "Max",
+        species: "dog",
+        breed: "Golden Retriever",
+        age: "3 years",
+        weight: "65 lbs",
+        photo: "",
+      });
+    });
+  });
+
+  it("calls onCancel when cancel button is clicked", async () => {
+    const user = userEvent.setup();
+    render(
+      <PetProfileForm
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+        onSuccess={mockOnSuccess}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /cancel/i }));
+    expect(mockOnCancel).toHaveBeenCalled();
+  });
+
+  it("displays error messages", async () => {
+    const user = userEvent.setup();
+    mockActions.createPetAction.mockResolvedValue({
+      error: "Database error occurred",
+    });
+
+    render(
+      <PetProfileForm
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+        onSuccess={mockOnSuccess}
+      />,
+    );
+
+    // Fill in required fields and submit
+    await user.type(screen.getByLabelText(/pet name/i), "Buddy");
+    const selectTrigger = screen.getByRole("combobox");
+    await user.click(selectTrigger);
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: /dog/i })).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole("option", { name: /dog/i }));
+    await user.click(screen.getByRole("button", { name: /add pet/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Database error occurred")).toBeInTheDocument();
+    });
+  });
+});
