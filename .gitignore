@@ -48,3 +48,4 @@ node_modules/
 
 # I want to ignore the git folder
 .git
+.gitignore/
