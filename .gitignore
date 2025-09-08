@@ -41,11 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 # Tempo
-
-node_modules/
 **/tempobook/dynamic/
 **/tempobook/storyboards/
 
-# I want to ignore the git folder
 .git
-.gitignore/
