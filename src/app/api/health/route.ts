@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
 
     // Check environment variables
     const requiredEnvVars = [
-      "NEXT_PUBLIC_SUPABASE_URL",
-      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "SUPABASE_URL",
+      "SUPABASE_ANON_KEY",
       "SUPABASE_SERVICE_KEY",
       "STRIPE_SECRET_KEY",
     ];

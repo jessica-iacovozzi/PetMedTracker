@@ -60,8 +60,6 @@ This project uses GitHub Actions for continuous integration and deployment. The 
 ### Required Secrets
 
 #### Supabase (Test/Staging/Production)
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_KEY`
