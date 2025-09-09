@@ -19,7 +19,7 @@ import {
   updatePetAction,
   checkUserSubscription,
 } from "@/app/actions";
-import { createClient } from "../../supabase/client";
+import { createSupabaseClient } from "../../supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -67,7 +67,7 @@ export default function PetProfileForm({
   const [error, setError] = useState("");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const supabase = createClient();
+  const supabase = createSupabaseClient();
   const router = useRouter();
 
   const isEditing = !!pet?.id;

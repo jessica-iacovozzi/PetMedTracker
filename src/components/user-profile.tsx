@@ -7,11 +7,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { createClient } from "../../supabase/client";
+import { createSupabaseClient } from "../../supabase/client";
 import { useRouter } from "next/navigation";
 
 export default function UserProfile() {
-  const supabase = createClient();
+  const supabase = createSupabaseClient();
   const router = useRouter();
 
   return (

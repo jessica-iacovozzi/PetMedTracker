@@ -29,6 +29,12 @@
 # =========================
 .env
 .env*.local
+.env.local
+.env.*.local
+
+# But keep the example and documentation
+!.env.example
+!docs/environment-variables.md
 
 # =========================
 # Supabase

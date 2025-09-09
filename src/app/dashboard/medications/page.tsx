@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -28,7 +30,7 @@ import {
   deleteMedicationAction,
   checkUserSubscription,
 } from "@/app/actions";
-import { createClient } from "../../../../supabase/client";
+import { createSupabaseClient } from "../../../../supabase/client";
 import { useRouter } from "next/navigation";
 
 interface Medication {
@@ -67,7 +69,7 @@ export default function MedicationsPage() {
 
   const router = useRouter();
 
-  const supabase = createClient();
+  const supabase = createSupabaseClient();
 
   const fetchData = async () => {
     try {

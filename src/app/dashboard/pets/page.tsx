@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -20,11 +21,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Heart, Plus, Edit, Trash2 } from "lucide-react";
+import { Heart, Plus } from "lucide-react";
 import PetCard from "@/components/pet-card";
 import PetProfileForm from "@/components/pet-profile-form";
 import { getPets, deletePetAction, checkUserSubscription } from "@/app/actions";
-import { createClient } from "../../../../supabase/client";
+import { createSupabaseClient } from "../../../../supabase/client";
 import { useRouter } from "next/navigation";
 
 interface Pet {
@@ -46,7 +47,7 @@ export default function PetsPage() {
 
   const router = useRouter();
 
-  const supabase = createClient();
+  const supabase = createSupabaseClient();
 
   const fetchPets = async () => {
     try {

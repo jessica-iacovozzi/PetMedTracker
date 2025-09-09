@@ -20,7 +20,7 @@ import {
   updateProfileAction,
   updateNotificationPreferencesAction,
 } from "@/app/actions";
-import { createClient } from "../../supabase/client";
+import { createSupabaseClient } from "../../supabase/client";
 import { useRouter } from "next/navigation";
 import {
   Settings,
@@ -53,7 +53,7 @@ export default function AccountSettings({
   const [pushNotifications, setPushNotifications] = useState(
     notificationPrefs?.push_enabled ?? true,
   );
-  const supabase = createClient();
+  const supabase = createSupabaseClient();
   const router = useRouter();
 
   const handleProfileUpdate = async (formData: FormData) => {
@@ -327,7 +327,8 @@ export default function AccountSettings({
       {/* Message Display */}
       {message && (
         <div className="mt-6">
-          <FormMessage message={message} />
+          {message.success && <FormMessage message={{ success: message.success }} />}
+          {message.error && <FormMessage message={{ error: message.error }} />}
         </div>
       )}
     </div>

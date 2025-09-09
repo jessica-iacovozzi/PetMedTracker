@@ -2,7 +2,7 @@ import { createClient } from "../../../../supabase/server";
 import { redirect } from "next/navigation";
 import DashboardNavbar from "@/components/dashboard-navbar";
 import HistoryLog from "@/components/history-log";
-import { getHistoryLog, getPets } from "@/app/actions";
+import { getHistoryAction, getPets } from "@/app/actions";
 
 export default async function HistoryPage() {
   const supabase = await createClient();
@@ -16,10 +16,16 @@ export default async function HistoryPage() {
   }
 
   try {
-    const [historyData, pets] = await Promise.all([
-      getHistoryLog(user.id),
+    const [historyResult, pets] = await Promise.all([
+      getHistoryAction(),
       getPets(user.id),
     ]);
+
+    if (historyResult.error) {
+      throw new Error(historyResult.error);
+    }
+
+    const historyData = historyResult.data || [];
 
     return (
       <div className="min-h-screen bg-gray-50">
@@ -30,8 +36,7 @@ export default async function HistoryPage() {
               Medication History
             </h1>
             <p className="text-gray-600">
-              Track your pets' medication compliance and export records for vet
-              visits.
+              Track your pet's medication administration history
             </p>
           </div>
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
-import { Heart, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Heart, ArrowLeft } from "lucide-react";
 import OnboardingWelcome from "./onboarding-welcome";
 import OnboardingPetSetup from "./onboarding-pet-setup";
 import OnboardingMedicationSetup from "./onboarding-medication-setup";
