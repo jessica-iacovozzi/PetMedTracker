@@ -59,12 +59,12 @@ This project uses GitHub Actions for continuous integration and deployment. The 
 
 ### Required Secrets
 
-#### Supabase (Test/Staging/Production)
+#### Supabase (Staging/Production)
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_KEY`
 
-#### Stripe (Test/Staging/Production)
+#### Stripe (Staging/Production)
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 
