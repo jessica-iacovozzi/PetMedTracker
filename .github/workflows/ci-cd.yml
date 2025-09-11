@@ -84,6 +84,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: build-and-lint
+    # Only run integration tests if not from a fork (secrets unavailable on forks)
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'push'
     
     services:
       postgres:

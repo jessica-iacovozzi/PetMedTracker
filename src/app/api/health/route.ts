@@ -19,24 +19,27 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check environment variables
-    const requiredEnvVars = [
-      "SUPABASE_URL",
-      "SUPABASE_ANON_KEY",
-      "SUPABASE_SERVICE_KEY",
-      "STRIPE_SECRET_KEY",
+    // Check environment variables using config
+    const { config } = await import("@/lib/config");
+
+    const configFields = [
+      config.supabase.url,
+      config.supabase.anonKey,
+      config.supabase.serviceKey,
+      config.stripe.secretKey,
     ];
 
-    const missingEnvVars = requiredEnvVars.filter(
-      (envVar) => !process.env[envVar],
+    const missingFields = configFields.filter(
+      (field) => !field || field.trim() === "",
     );
+    const missingEnvVars: string[] = [];
 
-    if (missingEnvVars.length > 0) {
+    if (missingFields.length > 0) {
       return NextResponse.json(
         {
           status: "unhealthy",
-          error: "Missing environment variables",
-          missing: missingEnvVars,
+          error: "Missing configuration fields",
+          environment: config.environment,
           timestamp: new Date().toISOString(),
         },
         { status: 503 },
@@ -46,7 +49,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       status: "healthy",
       version: process.env.npm_package_version || "unknown",
-      environment: process.env.NODE_ENV || "unknown",
+      environment: config.environment,
       database: "connected",
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),

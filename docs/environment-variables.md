@@ -58,7 +58,12 @@ PROD_SUPABASE_URL=https://prod.supabase.co
 - `STRIPE_WEBHOOK_SECRET` - Webhook endpoint secret
 
 ### App Configuration
-- `NEXT_PUBLIC_APP_URL` - Application base URL
+- `NEXT_PUBLIC_APP_URL` - Application base URL (public, available on client)
+
+### Deployment Configuration (CI/CD)
+- `VERCEL_TOKEN` - Vercel API token for deployments
+- `VERCEL_ORG_ID` - Vercel organization ID
+- `VERCEL_PROJECT_ID` - Vercel project ID
 
 ## Setup Instructions
 
@@ -69,15 +74,16 @@ PROD_SUPABASE_URL=https://prod.supabase.co
    cp .env.example .env.local
    ```
 
-2. Fill in your development values:
+2. Fill in your development values (no prefixes needed for local development):
    ```bash
    # Development values (no prefix)
    SUPABASE_URL=your_dev_supabase_url
    SUPABASE_ANON_KEY=your_dev_anon_key
    STRIPE_SECRET_KEY=sk_test_your_dev_key
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
-### 2. Staging Environment (Vercel)
+### 2. Staging Environment (Vercel Preview)
 
 Set environment variables in Vercel dashboard with `STAGING_` prefix:
 
@@ -85,9 +91,10 @@ Set environment variables in Vercel dashboard with `STAGING_` prefix:
 STAGING_SUPABASE_URL=your_staging_supabase_url
 STAGING_SUPABASE_ANON_KEY=your_staging_anon_key
 STAGING_STRIPE_SECRET_KEY=sk_test_your_staging_key
+STAGING_NEXT_PUBLIC_APP_URL=https://staging.petmeds.app
 ```
 
-### 3. Production Environment (Vercel)
+### 3. Production Environment (Vercel Production)
 
 Set environment variables in Vercel dashboard with `PROD_` prefix:
 
@@ -95,6 +102,7 @@ Set environment variables in Vercel dashboard with `PROD_` prefix:
 PROD_SUPABASE_URL=your_production_supabase_url
 PROD_SUPABASE_ANON_KEY=your_production_anon_key
 PROD_STRIPE_SECRET_KEY=sk_live_your_production_key
+PROD_NEXT_PUBLIC_APP_URL=https://petmeds.app
 ```
 
 ## Usage in Code
@@ -106,10 +114,19 @@ import { config, isProduction, isStaging, isDevelopment } from '@/lib/config'
 // Access configuration
 console.log(config.supabase.url)
 console.log(config.stripe.secretKey)
+console.log(config.app.url)
 
 // Environment checks
 if (isProduction()) {
   // Production-only code
+}
+
+if (isStaging()) {
+  // Staging-only code
+}
+
+if (isDevelopment()) {
+  // Development-only code
 }
 ```
 
@@ -121,6 +138,21 @@ import { createClient as createServerClient } from '@/supabase/server'
 // Automatically uses correct environment variables
 const supabase = createClient()
 const serverSupabase = await createServerClient()
+```
+
+### API Routes
+```typescript
+import { config } from '@/lib/config'
+
+export async function POST(request: Request) {
+  // Use environment-specific Stripe key
+  const stripe = new Stripe(config.stripe.secretKey)
+  
+  // Environment-specific logic
+  if (config.environment === 'production') {
+    // Production behavior
+  }
+}
 ```
 
 ## Validation
@@ -138,35 +170,44 @@ Missing required environment variable: SUPABASE_URL (environment: production)
 3. **Rotate keys regularly** - Especially production keys
 4. **Limit key permissions** - Use least-privilege principle
 5. **Monitor key usage** - Set up alerts for unusual activity
+6. **Separate environments** - Never use production keys in staging/development
 
 ## Debugging
 
 ### Check Current Configuration
-Visit `/api/config` in your browser to see the current environment and configuration (sensitive values are hidden in production).
+Visit `/api/health` in your browser to see the current environment and configuration status (sensitive values are hidden in production).
 
 ### Common Issues
 
 1. **"Missing required environment variable"**
-   - Check that the variable is set with the correct prefix
+   - Check that the variable is set with the correct prefix for your environment
    - Verify the environment detection is working correctly
+   - Ensure the variable name matches exactly (case-sensitive)
 
 2. **Wrong environment detected**
    - Check `VERCEL_ENV` and `NODE_ENV` values
-   - Use `/api/config` endpoint to debug
+   - Use `/api/health` endpoint to debug environment detection
+   - Verify Vercel environment settings
 
 3. **Supabase connection fails**
    - Verify URL and keys are correct for the environment
    - Check that the Supabase project is accessible
+   - Ensure RLS policies allow the operations
+
+4. **Stripe integration issues**
+   - Verify you're using test keys for staging and live keys for production
+   - Check webhook endpoints are configured correctly
+   - Ensure webhook secrets match
 
 ## CI/CD Integration
 
 The CI/CD pipeline automatically uses the correct environment variables:
 
-- **PR builds**: Use staging variables
+- **PR builds**: Use staging variables (VERCEL_ENV=preview)
 - **Main branch**: Deploy to staging with staging variables
 - **Production**: Deploy with production variables (manual approval required)
 
-Environment variables are set as GitHub Secrets with appropriate prefixes.
+Environment variables are set as GitHub Secrets and Vercel Environment Variables with appropriate prefixes.
 
 ## Testing
 
@@ -182,3 +223,15 @@ Tests cover:
 - Fallback behavior
 - Validation rules
 - Type guards
+- Error handling
+
+## Migration from Legacy System
+
+If you're migrating from the old environment variable system:
+
+1. Update imports from `@/utils/env` to `@/lib/config`
+2. Replace direct `process.env` usage with `config` object
+3. Add environment prefixes to your variables in Vercel
+4. Test each environment thoroughly
+
+The old `@/utils/env` file is deprecated but still works for backward compatibility.
