@@ -7,336 +7,198 @@ on:
     branches: [main, develop]
   workflow_dispatch:
 
+env:
+  NODE_VERSION: 18
+  CI: true
+
 jobs:
-  # Build and Lint Stage
+  # Build and Lint
   build-and-lint:
-    name: Build and Lint
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Run TypeScript type check
-        run: npx tsc --noEmit
-        
-      - name: Run ESLint
-        run: npx next lint
-        
-      - name: Run Prettier check
-        run: npx prettier --check .
-        
-      - name: Build application
-        run: npm run build
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      - uses: actions/checkout@v4
 
-  # Unit Tests Stage
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx next lint
+      - run: npx prettier --check .
+      - run: npm run build
+        env:
+          SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STAGING_STRIPE_SECRET_KEY }}
+
+  # Unit Tests
   unit-tests:
-    name: Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: build-and-lint
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Run unit tests with coverage
-        run: npm run test:unit -- --coverage --watchAll=false
-        env:
-          CI: true
-          
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v3
+      - run: npm ci
+      - run: npm run test:unit -- --coverage --watchAll=false
+      - uses: codecov/codecov-action@v3
         with:
           file: ./coverage/lcov.info
           flags: unittests
-          name: codecov-umbrella
           fail_ci_if_error: false
 
-  # Integration Tests Stage
+  # Integration Tests
   integration-tests:
-    name: Integration Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: build-and-lint
-    # Only run integration tests if not from a fork (secrets unavailable on forks)
     if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'push'
-    
     services:
       postgres:
         image: postgres:14
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test_db
-        options: >
+        options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
           - 5432:5432
-    
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+      SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+      STRIPE_SECRET_KEY: ${{ secrets.STAGING_STRIPE_SECRET_KEY }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Setup test database
-        run: |
-          npm run db:setup:test
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-          
-      - name: Run integration tests
-        run: npm run test:integration
-        env:
-          CI: true
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      - run: npm ci
+      - run: npm run db:setup:test
+      - run: npm run test:integration
 
-  # E2E Tests Stage
+  # E2E Tests
   e2e-tests:
-    name: E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: [unit-tests, integration-tests]
-    
+    env:
+      NODE_ENV: test
+      SUPABASE_URL: ${{ github.ref == 'refs/heads/main' && secrets.STAGING_SUPABASE_URL || 'http://localhost:54321' }}
+      SUPABASE_ANON_KEY: ${{ github.ref == 'refs/heads/main' && secrets.STAGING_SUPABASE_ANON_KEY || 'test-anon-key' }}
+      STRIPE_SECRET_KEY: ${{ github.ref == 'refs/heads/main' && secrets.STAGING_STRIPE_SECRET_KEY || 'sk_test_fake_key' }}
+      STRIPE_WEBHOOK_SECRET: ${{ github.ref == 'refs/heads/main' && secrets.STAGING_STRIPE_WEBHOOK_SECRET || 'whsec_test_secret' }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-        
-      - name: Run E2E tests
-        run: npm run test:e2e
-        env:
-          CI: true
-          NODE_ENV: test
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-          
-      - name: Upload E2E test results
-        uses: actions/upload-artifact@v3
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
-          
-      - name: Upload E2E screenshots
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: playwright-screenshots
           path: test-results/
           retention-days: 7
 
-  # Staging Deployment
+  # Deploy to Staging
   deploy-staging:
-    name: Deploy to Staging
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [unit-tests, integration-tests, e2e-tests]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: staging
-      url: ${{ steps.deploy.outputs.url }}
-    
+    env:
+      NODE_ENV: production
+      SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+      STRIPE_SECRET_KEY: ${{ secrets.STAGING_STRIPE_SECRET_KEY }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Build for staging
-        run: npm run build
-        env:
-          NODE_ENV: production
-          SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_KEY }}
-          STRIPE_SECRET_KEY: ${{ secrets.STAGING_STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STAGING_STRIPE_WEBHOOK_SECRET }}
-          
-      - name: Deploy to Vercel (Staging)
-        id: deploy
+      - run: npm ci
+      - run: npm run build
+      - id: deploy
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./
-          scope: ${{ secrets.VERCEL_ORG_ID }}
-          
-      - name: Run staging smoke tests
-        run: |
-          sleep 30  # Wait for deployment to be ready
-          curl -f ${{ steps.deploy.outputs.preview-url }}/api/health || exit 1
-          
-      - name: Notify deployment success
-        if: success()
-        run: |
-          echo "✅ Staging deployment successful: ${{ steps.deploy.outputs.preview-url }}"
-          
-      - name: Notify deployment failure
-        if: failure()
-        run: |
-          echo "❌ Staging deployment failed"
-          exit 1
+      - run: |
+          sleep 30
+          curl -f ${{ steps.deploy.outputs.preview-url || steps.deploy.outputs.url }}/api/health
 
-  # Production Deployment (Manual Approval Required)
+  # Deploy to Production
   deploy-production:
-    name: Deploy to Production
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: deploy-staging
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: production
-      url: ${{ steps.deploy.outputs.url }}
-    
+    env:
+      NODE_ENV: production
+      SUPABASE_URL: ${{ secrets.PROD_SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.PROD_SUPABASE_ANON_KEY }}
+      STRIPE_SECRET_KEY: ${{ secrets.PROD_STRIPE_SECRET_KEY }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Build for production
-        run: npm run build
-        env:
-          NODE_ENV: production
-          SUPABASE_URL: ${{ secrets.PROD_SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.PROD_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.PROD_SUPABASE_SERVICE_KEY }}
-          STRIPE_SECRET_KEY: ${{ secrets.PROD_STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.PROD_STRIPE_WEBHOOK_SECRET }}
-          
-      - name: Deploy to Vercel (Production)
-        id: deploy
+      - run: npm ci
+      - run: npm run build
+      - id: deploy
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
-          working-directory: ./
-          scope: ${{ secrets.VERCEL_ORG_ID }}
-          
-      - name: Run production smoke tests
-        run: |
-          sleep 60  # Wait for deployment to be ready
-          curl -f ${{ steps.deploy.outputs.preview-url }}/api/health || exit 1
-          
-      - name: Notify production deployment success
-        if: success()
-        run: |
-          echo "🚀 Production deployment successful: ${{ steps.deploy.outputs.preview-url }}"
-          
-      - name: Rollback on failure
-        if: failure()
-        run: |
-          echo "❌ Production deployment failed - initiating rollback"
-          # Add rollback logic here if needed
-          exit 1
+      - run: |
+          sleep 60
+          curl -f ${{ steps.deploy.outputs.preview-url || steps.deploy.outputs.url }}/api/health
 
-  # Security and Quality Checks
+  # Security Scan
   security-scan:
-    name: Security Scan
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: build-and-lint
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Run npm audit
-        run: npm audit --audit-level=high
-        
-      - name: Run dependency check
-        run: |
-          npx audit-ci --config .audit-ci.json || true
-          
-      - name: Check for secrets in code
-        uses: trufflesecurity/trufflehog@main
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npx audit-ci --config .audit-ci.json || true
+      - uses: trufflesecurity/trufflehog@main
         with:
           path: ./
           base: main
           head: HEAD
-          extra_args: --debug --only-verified
