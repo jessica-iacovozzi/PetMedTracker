@@ -62,5 +62,6 @@
   "engines": {
     "node": "^20",
     "npm": "^10"
-  }
+  },
+  "engine-strict": true
 }
