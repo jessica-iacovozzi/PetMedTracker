@@ -35,6 +35,9 @@ jobs:
     
     - name: Install dependencies
       run: npm ci
+
+    - name: Load test environment
+      run: cp .env.test .env
     
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
