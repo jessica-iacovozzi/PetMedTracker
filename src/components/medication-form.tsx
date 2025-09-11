@@ -16,7 +16,6 @@ import { Textarea } from "./ui/textarea";
 import { Switch } from "./ui/switch";
 import { Pill, Plus, Bell, Edit } from "lucide-react";
 import { createMedicationAction, updateMedicationAction } from "@/app/actions";
-import { createClient } from "../../supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -74,7 +73,6 @@ export default function MedicationForm({
   const [error, setError] = useState("");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const supabase = createClient();
   const router = useRouter();
 
   const isEditing = !!medication?.id;

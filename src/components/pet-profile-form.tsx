@@ -17,9 +17,7 @@ import { Heart, Upload, Plus, Edit } from "lucide-react";
 import {
   createPetAction,
   updatePetAction,
-  checkUserSubscription,
 } from "@/app/actions";
-import { createClient } from "../../supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -67,7 +65,6 @@ export default function PetProfileForm({
   const [error, setError] = useState("");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const supabase = createClient();
   const router = useRouter();
 
   const isEditing = !!pet?.id;

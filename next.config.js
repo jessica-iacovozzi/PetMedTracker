@@ -1,18 +1,6 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  env: {
-    // Make environment detection available to the client
-    VERCEL_ENV: process.env.VERCEL_ENV,
-    NODE_ENV: process.env.NODE_ENV,
-    // Make Supabase environment variables available to the client
-    STAGING_SUPABASE_URL: process.env.STAGING_SUPABASE_URL,
-    STAGING_SUPABASE_ANON_KEY: process.env.STAGING_SUPABASE_ANON_KEY,
-    PROD_SUPABASE_URL: process.env.PROD_SUPABASE_URL,
-    PROD_SUPABASE_ANON_KEY: process.env.PROD_SUPABASE_ANON_KEY,
-    SUPABASE_URL: process.env.SUPABASE_URL,
-    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
-  },
   // Ensure environment variables are available at build time
   experimental: {
     // Enable server actions

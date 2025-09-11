@@ -1,4 +1,13 @@
+// @ts-ignore: Deno global is available in Supabase Edge Functions
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+};
+
+// @ts-ignore: ESM imports work in Deno runtime
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-ignore: ESM imports work in Deno runtime
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -57,7 +66,14 @@ serve(async (req) => {
       );
     }
 
-    const results = [];
+    const results: Array<{
+      reminderId: string;
+      petName?: string;
+      medicationName?: string;
+      emailSent?: boolean;
+      pushSent?: boolean;
+      error?: string;
+    }> = [];
 
     for (const reminder of pendingReminders) {
       try {

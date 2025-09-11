@@ -42,8 +42,8 @@ function getEnvironment(): Environment {
     return "production";
   }
 
-  // Check NODE_ENV for staging
-  if (process.env.NODE_ENV === "staging") {
+  // Check for custom staging environment variable
+  if (process.env.APP_ENV === "staging") {
     return "staging";
   }
 
@@ -65,6 +65,7 @@ function getEnvVar(
   if (environment === "production") {
     value = process.env[`PROD_${key}`];
   } else {
+    // For staging and development, try staging first
     value = process.env[`STAGING_${key}`];
   }
 
@@ -78,7 +79,14 @@ function getEnvVar(
     value = fallback;
   }
 
+  // For development, don't throw error for missing variables, use empty string
   if (!value) {
+    if (environment === "development") {
+      console.warn(
+        `Missing environment variable: ${key} (environment: ${environment})`,
+      );
+      return fallback || "";
+    }
     throw new Error(
       `Missing required environment variable: ${key} (environment: ${environment})`,
     );
@@ -101,6 +109,7 @@ function getPublicEnvVar(
   if (environment === "production") {
     value = process.env[`PROD_${key}`];
   } else {
+    // For staging and development, try staging first
     value = process.env[`STAGING_${key}`];
   }
 
@@ -114,7 +123,14 @@ function getPublicEnvVar(
     value = fallback;
   }
 
+  // For development, provide default fallback
   if (!value) {
+    if (environment === "development") {
+      console.warn(
+        `Missing public environment variable: ${key} (environment: ${environment})`,
+      );
+      return fallback || "http://localhost:3000";
+    }
     throw new Error(
       `Missing required public environment variable: ${key} (environment: ${environment})`,
     );
@@ -127,6 +143,11 @@ function getPublicEnvVar(
  * Validates that all required environment variables are present
  */
 function validateConfig(config: Config): void {
+  // Skip validation in development to allow the app to start
+  if (config.environment === "development") {
+    return;
+  }
+
   const requiredFields = [
     "supabase.url",
     "supabase.anonKey",
@@ -176,7 +197,11 @@ function createConfig(): Config {
       webhookSecret: getEnvVar("STRIPE_WEBHOOK_SECRET", environment),
     },
     app: {
-      url: getPublicEnvVar("NEXT_PUBLIC_APP_URL", environment),
+      url: getPublicEnvVar(
+        "NEXT_PUBLIC_APP_URL",
+        environment,
+        "http://localhost:3000",
+      ),
       name: "PetMeds Reminder",
     },
   };
