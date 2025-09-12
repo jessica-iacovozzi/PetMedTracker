@@ -5,12 +5,9 @@ import Footer from "@/components/footer";
 import { createClient } from "../../supabase/server";
 import {
   ArrowUpRight,
-  CheckCircle2,
   Heart,
   Bell,
   Calendar,
-  Clock,
-  Shield,
   Smartphone,
 } from "lucide-react";
 

@@ -150,4 +150,101 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 DROP TRIGGER IF EXISTS on_auth_user_updated ON auth.users;
 CREATE TRIGGER on_auth_user_updated
   AFTER UPDATE ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_user_update(); 
+  FOR EACH ROW EXECUTE FUNCTION public.handle_user_update();
+
+-- Create pets table
+CREATE TABLE IF NOT EXISTS public.pets (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id text REFERENCES public.users(user_id) NOT NULL,
+    name text NOT NULL,
+    species text NOT NULL,
+    photo text,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Create medications table
+CREATE TABLE IF NOT EXISTS public.medications (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id text REFERENCES public.users(user_id) NOT NULL,
+    pet_id uuid REFERENCES public.pets(id) ON DELETE CASCADE NOT NULL,
+    name text NOT NULL,
+    dosage text NOT NULL,
+    frequency text NOT NULL,
+    timing text NOT NULL,
+    duration text,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Create history table
+CREATE TABLE IF NOT EXISTS public.history (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id text REFERENCES public.users(user_id) NOT NULL,
+    pet_id uuid REFERENCES public.pets(id) ON DELETE CASCADE NOT NULL,
+    medication_id uuid REFERENCES public.medications(id) ON DELETE CASCADE NOT NULL,
+    dosage text NOT NULL,
+    scheduled_time timestamp with time zone NOT NULL,
+    status text CHECK (status IN ('given', 'missed')) NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS pets_user_id_idx ON public.pets(user_id);
+CREATE INDEX IF NOT EXISTS medications_user_id_idx ON public.medications(user_id);
+CREATE INDEX IF NOT EXISTS medications_pet_id_idx ON public.medications(pet_id);
+CREATE INDEX IF NOT EXISTS history_user_id_idx ON public.history(user_id);
+CREATE INDEX IF NOT EXISTS history_pet_id_idx ON public.history(pet_id);
+CREATE INDEX IF NOT EXISTS history_medication_id_idx ON public.history(medication_id);
+CREATE INDEX IF NOT EXISTS history_scheduled_time_idx ON public.history(scheduled_time);
+
+-- Create notification_preferences table
+CREATE TABLE IF NOT EXISTS public.notification_preferences (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id text REFERENCES public.users(user_id) NOT NULL,
+    email_enabled boolean DEFAULT true NOT NULL,
+    push_enabled boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Create indexes for notification preferences
+CREATE INDEX IF NOT EXISTS notification_preferences_user_id_idx ON public.notification_preferences(user_id);
+
+-- Create reminders table
+CREATE TABLE IF NOT EXISTS public.reminders (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id text REFERENCES public.users(user_id) NOT NULL,
+    pet_id uuid REFERENCES public.pets(id) ON DELETE CASCADE NOT NULL,
+    medication_id uuid REFERENCES public.medications(id) ON DELETE CASCADE NOT NULL,
+    scheduled_time timestamp with time zone NOT NULL,
+    status text CHECK (status IN ('pending', 'sent', 'given', 'missed')) DEFAULT 'pending' NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Create reminder_logs table
+CREATE TABLE IF NOT EXISTS public.reminder_logs (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    reminder_id uuid REFERENCES public.reminders(id) ON DELETE CASCADE NOT NULL,
+    sent_at timestamp with time zone NOT NULL,
+    channel text CHECK (channel IN ('email', 'push')) NOT NULL,
+    status text CHECK (status IN ('success', 'failed')) NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Create indexes for reminders
+CREATE INDEX IF NOT EXISTS reminders_user_id_idx ON public.reminders(user_id);
+CREATE INDEX IF NOT EXISTS reminders_pet_id_idx ON public.reminders(pet_id);
+CREATE INDEX IF NOT EXISTS reminders_medication_id_idx ON public.reminders(medication_id);
+CREATE INDEX IF NOT EXISTS reminders_scheduled_time_idx ON public.reminders(scheduled_time);
+CREATE INDEX IF NOT EXISTS reminders_status_idx ON public.reminders(status);
+CREATE INDEX IF NOT EXISTS reminder_logs_reminder_id_idx ON public.reminder_logs(reminder_id);
+CREATE INDEX IF NOT EXISTS reminder_logs_sent_at_idx ON public.reminder_logs(sent_at);
+
+-- Enable realtime for new tables
+alter publication supabase_realtime add table pets;
+alter publication supabase_realtime add table medications;
+alter publication supabase_realtime add table history;
+alter publication supabase_realtime add table notification_preferences;
+alter publication supabase_realtime add table reminders;
+alter publication supabase_realtime add table reminder_logs;
