@@ -60,8 +60,8 @@
     "typescript": "^5.9.2"
   },
   "engines": {
-    "node": "^20",
-    "npm": "^10"
+    "node": ">=20 <=22",
+    "npm": ">=10"
   },
   "engine-strict": true
 }
