@@ -10,8 +10,33 @@ import {
   updateNotificationPreferencesAction,
 } from "@/app/actions";
 
+interface PetData {
+  name: string;
+  species: string;
+  photo?: string;
+}
+
+interface MedicationData {
+  name: string;
+  dosage: string;
+  frequency: string;
+  timing: string;
+  duration?: string;
+}
+
+interface NotificationData {
+  emailEnabled: boolean;
+  pushEnabled: boolean;
+}
+
+interface OnboardingData {
+  pet?: PetData;
+  medication?: MedicationData;
+  notifications?: NotificationData;
+}
+
 interface OnboardingCompletionProps {
-  data: any;
+  data: OnboardingData;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 }
@@ -65,8 +90,8 @@ export default function OnboardingCompletion({
         }
 
         setIsComplete(true);
-      } catch (err: any) {
-        setError(err.message || "Failed to complete onboarding");
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Failed to complete onboarding");
       } finally {
         setIsLoading(false);
       }

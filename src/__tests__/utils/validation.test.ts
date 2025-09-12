@@ -59,7 +59,13 @@ describe("Validation Utils", () => {
 });
 
 // Additional validation helper functions for testing
-export const validatePetData = (petData: any) => {
+interface PetData {
+  name?: string;
+  species?: string;
+  [key: string]: unknown;
+}
+
+export const validatePetData = (petData: PetData) => {
   const errors: string[] = [];
 
   if (!petData.name || petData.name.trim().length === 0) {
@@ -80,7 +86,16 @@ export const validatePetData = (petData: any) => {
   };
 };
 
-export const validateMedicationData = (medicationData: any) => {
+interface MedicationData {
+  petId?: string;
+  name?: string;
+  dosage?: string;
+  frequency?: string;
+  timing?: string;
+  [key: string]: unknown;
+}
+
+export const validateMedicationData = (medicationData: MedicationData) => {
   const errors: string[] = [];
 
   if (!medicationData.petId) {

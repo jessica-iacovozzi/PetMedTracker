@@ -33,7 +33,13 @@ interface Pet {
   name: string;
   species: string;
   photo?: string;
-  medications?: any[];
+  medications?: Array<{
+    id: string;
+    name: string;
+    dosage: string;
+    frequency: string;
+    timing: string;
+  }>;
 }
 
 export default function PetsPage() {

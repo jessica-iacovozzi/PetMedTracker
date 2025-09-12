@@ -26,11 +26,11 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(environmentInfo)
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
       {
         error: 'Configuration error',
-        message: error.message,
+        message: error instanceof Error ? error.message : 'Unknown configuration error',
         environment: process.env.NODE_ENV || 'unknown',
       },
       { status: 500 }

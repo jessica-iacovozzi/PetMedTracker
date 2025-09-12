@@ -85,9 +85,9 @@ export async function POST(request: NextRequest) {
       message: "Test reminder created successfully",
       reminder,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to create test reminder", details: error.message },
+      { error: "Failed to create test reminder", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 },
     );
   }

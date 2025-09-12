@@ -160,13 +160,13 @@ function validateConfig(config: Config): void {
 
   requiredFields.forEach((field) => {
     const keys = field.split(".");
-    let value: any = config;
+    let value: unknown = config;
 
     for (const key of keys) {
       value = value?.[key];
     }
 
-    if (!value || value.trim() === "") {
+    if (!value || (typeof value === 'string' && value.trim() === "")) {
       missingFields.push(field);
     }
   });

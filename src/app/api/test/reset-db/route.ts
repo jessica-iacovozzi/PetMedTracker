@@ -205,10 +205,10 @@ export async function POST(request: NextRequest) {
         premiumUser: { id: testUser2Id, email: "premium@example.com" },
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Database reset error:", error);
     return NextResponse.json(
-      { error: "Failed to reset test database", details: error.message },
+      { error: "Failed to reset test database", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 },
     );
   }

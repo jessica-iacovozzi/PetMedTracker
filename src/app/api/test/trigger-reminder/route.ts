@@ -56,9 +56,9 @@ export async function POST(request: NextRequest) {
       message: "Reminder notifications triggered successfully",
       reminder_id,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to trigger reminder", details: error.message },
+      { error: "Failed to trigger reminder", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 },
     );
   }

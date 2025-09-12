@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // In-memory store for test notifications
-let notificationLogs: any[] = [];
+interface NotificationLog {
+  id: string;
+  type: string;
+  recipient: string;
+  message: string;
+  timestamp: string;
+  status: string;
+}
+
+let notificationLogs: NotificationLog[] = [];
 
 export async function POST(request: NextRequest) {
   // Only allow in test environment
@@ -44,9 +53,9 @@ export async function POST(request: NextRequest) {
       message: "Notification logged successfully",
       notification_id: notification.id,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to log notification", details: error.message },
+      { error: "Failed to log notification", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 },
     );
   }

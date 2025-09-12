@@ -1,6 +1,7 @@
 import Navbar from "@/components/navbar";
 import PricingCard from "@/components/pricing-card";
 import { createClient } from "../../../supabase/server";
+import { StripePlan } from "@/components/pricing-card";
 
 export default async function Pricing() {
   const supabase = await createClient();
@@ -109,7 +110,7 @@ export default async function Pricing() {
           </div>
 
           {/* Premium Plan */}
-          {plans?.map((item: any) => (
+          {plans?.map((item: StripePlan) => (
             <div key={item.id} className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 opacity-30 rounded-xl" />
               <div className="relative bg-white rounded-xl border-2 border-blue-500 shadow-xl p-8">

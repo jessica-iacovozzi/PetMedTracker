@@ -30,11 +30,28 @@ import {
   Shield,
 } from "lucide-react";
 
+interface UserProfile {
+  full_name?: string;
+  avatar_url?: string;
+  email?: string;
+}
+
+interface NotificationPreferences {
+  email_enabled: boolean;
+  push_enabled: boolean;
+}
+
+interface Subscription {
+  status?: string;
+  current_period_end?: number;
+  cancel_at_period_end?: boolean;
+}
+
 interface AccountSettingsProps {
   user: User;
-  userProfile: any;
-  notificationPrefs: any;
-  subscription: any;
+  userProfile: UserProfile;
+  notificationPrefs: NotificationPreferences;
+  subscription: Subscription;
 }
 
 export default function AccountSettings({

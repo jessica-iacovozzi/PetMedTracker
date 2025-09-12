@@ -69,9 +69,9 @@ export async function POST(request: NextRequest) {
       default:
         return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Mock Stripe API error", details: error.message },
+      { error: "Mock Stripe API error", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 },
     );
   }

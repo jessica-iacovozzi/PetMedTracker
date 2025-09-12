@@ -6,8 +6,13 @@ import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
 import { Bell, Mail, Smartphone } from "lucide-react";
 
+interface NotificationSetupData {
+  emailEnabled: boolean;
+  pushEnabled: boolean;
+}
+
 interface OnboardingNotificationSetupProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: NotificationSetupData) => void;
   onSkip: () => void;
   isLoading: boolean;
 }

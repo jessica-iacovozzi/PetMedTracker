@@ -59,7 +59,7 @@ export default function OnboardingFlow() {
     }
   };
 
-  const handleStepComplete = (stepData: any) => {
+  const handleStepComplete = (stepData: Record<string, unknown>) => {
     setOnboardingData({ ...onboardingData, ...stepData });
     handleNext();
   };

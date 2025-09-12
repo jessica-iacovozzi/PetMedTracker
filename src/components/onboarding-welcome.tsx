@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { Heart, Bell, Calendar, Shield } from "lucide-react";
 
 interface OnboardingWelcomeProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: Record<string, unknown>) => void;
 }
 
 export default function OnboardingWelcome({

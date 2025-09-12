@@ -11,11 +11,23 @@ import {
 } from "./ui/card";
 import { createSupabaseClient } from "../../supabase/client";
 
+interface StripePlan {
+  id: string;
+  object: string;
+  active: boolean;
+  amount: number;
+  currency: string;
+  interval: string;
+  nickname?: string;
+  product: string;
+  [key: string]: unknown;
+}
+
 export default function PricingCard({
   item,
   user,
 }: {
-  item: any;
+  item: StripePlan;
   user: User | null;
 }) {
   // Handle checkout process

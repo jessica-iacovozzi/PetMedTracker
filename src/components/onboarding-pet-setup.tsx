@@ -14,8 +14,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Upload, Heart } from "lucide-react";
 
+interface PetSetupData {
+  name: string;
+  species: string;
+  photo?: string;
+}
+
 interface OnboardingPetSetupProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: { pet: PetSetupData }) => void;
   isLoading: boolean;
 }
 

@@ -17,9 +17,28 @@ import ReminderCard from "./reminder-card";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+interface Pet {
+  id: string;
+  name: string;
+  species: string;
+  photo?: string;
+}
+
+interface Reminder {
+  id: string;
+  scheduled_time: string;
+  medication: {
+    name: string;
+    dosage: string;
+  };
+  pet: {
+    name: string;
+  };
+}
+
 interface DashboardOverviewProps {
-  pets?: any[];
-  todaysReminders?: any[];
+  pets?: Pet[];
+  todaysReminders?: Reminder[];
 }
 
 export default function DashboardOverview({
@@ -59,7 +78,7 @@ export default function DashboardOverview({
   );
 
   // Group reminders by time periods
-  const groupRemindersByTime = (reminders: any[]) => {
+  const groupRemindersByTime = (reminders: Reminder[]) => {
     const morning = reminders.filter((r) => {
       const hour = new Date(r.scheduled_time).getHours();
       return hour >= 6 && hour < 12;

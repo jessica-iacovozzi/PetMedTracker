@@ -13,10 +13,18 @@ import {
 } from "./ui/select";
 import { Pill, Clock } from "lucide-react";
 
+interface MedicationSetupData {
+  name: string;
+  dosage: string;
+  frequency: string;
+  timing: string;
+  duration?: string;
+}
+
 interface OnboardingMedicationSetupProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: { medication: MedicationSetupData }) => void;
   onSkip: () => void;
-  data: any;
+  data: { pet?: { name: string; species: string } };
   isLoading: boolean;
 }
 

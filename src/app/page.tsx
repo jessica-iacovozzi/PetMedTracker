@@ -1,6 +1,6 @@
 import Hero from "@/components/hero";
 import Navbar from "@/components/navbar";
-import PricingCard from "@/components/pricing-card";
+import PricingCard, { StripePlan } from "@/components/pricing-card";
 import Footer from "@/components/footer";
 import { createClient } from "../../supabase/server";
 import {
@@ -134,7 +134,7 @@ export default async function Home() {
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {plans?.map((item: any) => (
+            {plans?.map((item: StripePlan) => (
               <PricingCard key={item.id} item={item} user={user} />
             ))}
           </div>

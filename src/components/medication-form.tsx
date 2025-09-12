@@ -45,7 +45,7 @@ interface Pet {
 interface MedicationFormProps {
   medication?: Medication;
   pets?: Pet[];
-  onSubmit?: (medication: any) => void;
+  onSubmit?: (medication: Medication) => void;
   onCancel?: () => void;
   onSuccess?: () => void;
 }
