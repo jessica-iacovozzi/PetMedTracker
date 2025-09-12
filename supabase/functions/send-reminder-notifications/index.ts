@@ -10,6 +10,26 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // @ts-ignore: ESM imports work in Deno runtime
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// Get the appropriate Supabase credentials based on environment
+function getSupabaseCredentials(): { url: string; serviceKey: string } {
+  const vercelEnv = Deno.env.get("VERCEL_ENV");
+  const nodeEnv = Deno.env.get("NODE_ENV");
+
+  // Use production credentials for production environment
+  if (vercelEnv === "production" || nodeEnv === "production") {
+    return {
+      url: Deno.env.get("PROD_SUPABASE_URL") || Deno.env.get("SUPABASE_URL") || "",
+      serviceKey: Deno.env.get("PROD_SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+    };
+  }
+
+  // Use staging credentials for all other environments
+  return {
+    url: Deno.env.get("STAGING_SUPABASE_URL") || Deno.env.get("SUPABASE_URL") || "",
+    serviceKey: Deno.env.get("STAGING_SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+  };
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -22,10 +42,8 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    );
+    const { url, serviceKey } = getSupabaseCredentials();
+    const supabase = createClient(url, serviceKey);
 
     // Get current time
     const now = new Date();
