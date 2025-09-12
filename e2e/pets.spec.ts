@@ -74,7 +74,7 @@ test.describe("Pets CRUD Integration", () => {
     await page.click('button:has-text("Add Medication")');
 
     // Fill medication form
-    await page.selectOption('[data-testid="pet-select"]', { label: /Buddy/ });
+    await page.selectOption('[data-testid="pet-select"]', { label: "Buddy" });
     await page.fill('[data-testid="medication-name"]', "Test Medicine");
     await page.fill('[data-testid="medication-dosage"]', "1 tablet");
     await page.selectOption('[data-testid="medication-frequency"]', "daily");

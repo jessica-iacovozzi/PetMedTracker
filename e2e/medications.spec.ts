@@ -14,7 +14,7 @@ test.describe("Medications CRUD Integration", () => {
     );
 
     // Fill medication form
-    await page.selectOption('[data-testid="pet-select"]', { label: /Buddy/ });
+    await page.selectOption('[data-testid="pet-select"]', { label: "Buddy" });
     await page.fill(
       '[data-testid="medication-name"]',
       "Integration Test Medicine",
@@ -91,7 +91,7 @@ test.describe("Medications CRUD Integration", () => {
   test("should enforce free plan medication limits", async ({ page }) => {
     // Add first medication (should work)
     await page.click('button:has-text("Add Medication")');
-    await page.selectOption('[data-testid="pet-select"]', { label: /Buddy/ });
+    await page.selectOption('[data-testid="pet-select"]', { label: "Buddy" });
     await page.fill('[data-testid="medication-name"]', "Second Medicine");
     await page.fill('[data-testid="medication-dosage"]', "1 tablet");
     await page.selectOption('[data-testid="medication-frequency"]', "daily");
@@ -103,7 +103,7 @@ test.describe("Medications CRUD Integration", () => {
 
     // Try to add third medication (should trigger upgrade modal)
     await page.click('button:has-text("Add Medication")');
-    await page.selectOption('[data-testid="pet-select"]', { label: /Buddy/ });
+    await page.selectOption('[data-testid="pet-select"]', { label: "Buddy" });
     await page.fill('[data-testid="medication-name"]', "Third Medicine");
     await page.fill('[data-testid="medication-dosage"]', "1 tablet");
     await page.selectOption('[data-testid="medication-frequency"]', "daily");
@@ -142,7 +142,7 @@ test.describe("Medications CRUD Integration", () => {
     await expect(page.locator("text=required, text=Please")).toBeVisible();
 
     // Fill fields one by one and verify validation
-    await page.selectOption('[data-testid="pet-select"]', { label: /Buddy/ });
+    await page.selectOption('[data-testid="pet-select"]', { label: "Buddy" });
     await page.fill('[data-testid="medication-name"]', "Test Med");
     await page.fill('[data-testid="medication-dosage"]', "1 tablet");
     await page.selectOption('[data-testid="medication-frequency"]', "daily");
@@ -161,7 +161,7 @@ test.describe("Medications CRUD Integration", () => {
 
     for (const freq of frequencies) {
       await page.click('button:has-text("Add Medication")');
-      await page.selectOption('[data-testid="pet-select"]', { label: /Buddy/ });
+      await page.selectOption('[data-testid="pet-select"]', { label: "Buddy" });
       await page.fill(
         '[data-testid="medication-name"]',
         `${freq.label} Medicine`,
@@ -185,7 +185,7 @@ test.describe("Medications CRUD Integration", () => {
     await page.click('button:has-text("Add Medication")');
 
     // Fill basic form
-    await page.selectOption('[data-testid="pet-select"]', { label: /Buddy/ });
+    await page.selectOption('[data-testid="pet-select"]', { label: "Buddy" });
     await page.fill('[data-testid="medication-name"]', "Reminder Test Med");
     await page.fill('[data-testid="medication-dosage"]', "1 tablet");
     await page.selectOption('[data-testid="medication-frequency"]', "daily");
