@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Only allow in test environment
-if (process.env.NODE_ENV === "production") {
-  throw new Error("Test endpoints are not available in production");
-}
-
 export async function POST(request: NextRequest) {
+  // Only allow in test environment
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { error: "Test endpoints are not available in production" },
+      { status: 403 }
+    );
+  }
   try {
     const body = await request.json();
     const { action, user_id } = body;
@@ -76,6 +78,14 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  // Only allow in test environment
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { error: "Test endpoints are not available in production" },
+      { status: 403 }
+    );
+  }
+  
   const { searchParams } = new URL(request.url);
   const session_id = searchParams.get("session_id");
   const user_id = searchParams.get("user_id");

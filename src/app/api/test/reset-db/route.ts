@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "../../../../../supabase/server";
 
-// Only allow in test environment
-if (process.env.NODE_ENV === "production") {
-  throw new Error("Test endpoints are not available in production");
-}
-
-// Additional safety check for CI environment
-if (process.env.CI && !process.env.NODE_ENV?.includes("test")) {
-  console.warn("⚠️ Test endpoint accessed in CI without test environment");
-}
-
 export async function POST(request: NextRequest) {
+  // Only allow in test environment
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { error: "Test endpoints are not available in production" },
+      { status: 403 }
+    );
+  }
+
+  // Additional safety check for CI environment
+  if (process.env.CI && !process.env.NODE_ENV?.includes("test")) {
+    console.warn("⚠️ Test endpoint accessed in CI without test environment");
+  }
   try {
     const supabase = await createClient();
 
