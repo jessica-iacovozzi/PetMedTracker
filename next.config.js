@@ -1,11 +1,6 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  // Ensure environment variables are available at build time
-  experimental: {
-    // Enable server actions
-    serverActions: true,
-  },
   // Configure redirects for environment-specific URLs
   async redirects() {
     return [
