@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import {
@@ -9,7 +9,6 @@ import {
   Heart,
   Plus,
   Clock,
-  CheckCircle2,
   AlertTriangle,
 } from "lucide-react";
 import PetCard from "./pet-card";
@@ -22,17 +21,32 @@ interface Pet {
   name: string;
   species: string;
   photo?: string;
+  medications?: {
+    id: string;
+    name: string;
+    dosage: string;
+    frequency: string;
+    status: "due" | "upcoming" | "given";
+    nextDose?: string;
+    reminders: {
+      id: string;
+      scheduled_time: string;
+      status: string;
+    }[];
+  }[];
 }
 
 interface Reminder {
   id: string;
   scheduled_time: string;
-  medication: {
+  status: string;
+  pets: {
+    name: string;
+    species: string;
+  };
+  medications: {
     name: string;
     dosage: string;
-  };
-  pet: {
-    name: string;
   };
 }
 
@@ -103,7 +117,7 @@ export default function DashboardOverview({
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600 mt-1">
-            Manage your pets' medication schedules
+            Manage your pets&apos; medication schedules
           </p>
         </div>
         <div className="flex gap-3">
@@ -234,7 +248,7 @@ export default function DashboardOverview({
         <div className="space-y-6 mb-8">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">
-              Today's Medication Schedule
+              Today&apos;s Medication Schedule
             </h2>
             <div className="flex gap-2">
               <Badge variant="secondary">{todaysReminders.length} total</Badge>

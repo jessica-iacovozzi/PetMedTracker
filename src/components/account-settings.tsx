@@ -326,7 +326,7 @@ export default function AccountSettings({
               <div className="p-4 bg-muted/50 rounded-lg">
                 <h4 className="font-medium">Free Plan</h4>
                 <p className="text-sm text-muted-foreground">
-                  You're currently on the free plan with limited features
+                  You&apos;re currently on the free plan with limited features
                 </p>
               </div>
 

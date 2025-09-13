@@ -428,7 +428,7 @@ export default function MedicationsPage() {
           <DialogHeader>
             <DialogTitle>Upgrade to Premium</DialogTitle>
             <DialogDescription>
-              You've reached your Free Plan limit. Upgrade to Premium for
+              You&apos;ve reached your Free Plan limit. Upgrade to Premium for
               unlimited pets and medications.
             </DialogDescription>
           </DialogHeader>

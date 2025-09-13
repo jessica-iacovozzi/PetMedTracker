@@ -41,7 +41,7 @@ export default function OnboardingNotificationSetup({
           Set Up Notifications
         </h3>
         <p className="text-gray-600">
-          Choose how you'd like to receive medication reminders
+          Choose how you&apos;d like to receive medication reminders
         </p>
       </div>
 

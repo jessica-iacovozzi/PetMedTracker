@@ -69,7 +69,7 @@ export default function OnboardingPetSetup({
           Tell us about your pet
         </h3>
         <p className="text-gray-600">
-          We'll use this information to personalize your experience
+          We&apos;ll use this information to personalize your experience
         </p>
       </div>
 

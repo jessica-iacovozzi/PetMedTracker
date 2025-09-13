@@ -36,7 +36,7 @@ export default async function HistoryPage() {
               Medication History
             </h1>
             <p className="text-gray-600">
-              Track your pet's medication administration history
+              Track your pet&apos;s medication administration history
             </p>
           </div>
 

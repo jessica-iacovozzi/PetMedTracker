@@ -80,7 +80,7 @@ export default function OnboardingFlow() {
             <h1 className="text-2xl font-bold text-gray-900">PetMeds Setup</h1>
           </div>
           <p className="text-gray-600">
-            Let's get you started with managing your pet's medications
+            Let&apos;s get you started with managing your pet&apos;s medications
           </p>
         </div>
 

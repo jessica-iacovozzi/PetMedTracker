@@ -43,7 +43,7 @@ export default function OnboardingWelcome({
           Welcome to PetMeds!
         </h2>
         <p className="text-gray-600 max-w-md mx-auto">
-          Never miss a pet's medication again. Let's set up your account in just
+          Never miss a pet&apos;s medication again. Let&apos;s set up your account in just
           a few simple steps.
         </p>
       </div>

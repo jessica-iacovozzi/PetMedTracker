@@ -67,7 +67,7 @@ export default function OnboardingMedicationSetup({
           <Pill className="w-8 h-8 text-blue-600" />
         </div>
         <h3 className="text-lg font-semibold text-gray-900">
-          Add {data.pet?.name}'s First Medication
+          Add {data.pet?.name}&apos;s First Medication
         </h3>
         <p className="text-gray-600">
           Set up your first medication reminder to see how it works

@@ -134,7 +134,7 @@ export default function OnboardingCompletion({
             Setting up your account...
           </h3>
           <p className="text-gray-600">
-            We're creating your pet profile and medication reminders
+            We&apos;re creating your pet profile and medication reminders
           </p>
         </div>
       </div>
@@ -164,7 +164,7 @@ export default function OnboardingCompletion({
 
       {/* Summary */}
       <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-        <h4 className="font-medium text-gray-900">What we've set up:</h4>
+        <h4 className="font-medium text-gray-900">What we&apos;ve set up:</h4>
         <div className="space-y-2 text-sm">
           {data.pet && (
             <div className="flex items-center gap-2 text-gray-700">
@@ -195,7 +195,7 @@ export default function OnboardingCompletion({
             🔔 Your first reminder is scheduled for {nextReminderTime}
           </p>
           <p className="text-sm text-blue-700 mt-1">
-            You'll receive a notification when it's time for {data.pet?.name}'s
+            You&apos;ll receive a notification when it&apos;s time for {data.pet?.name}&apos;s
             medication
           </p>
         </div>

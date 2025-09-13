@@ -164,7 +164,7 @@ export default function ReminderCard({
             </Button>
             {(isOverdue || isDueNow) && (
               <p className="text-xs text-center text-gray-600">
-                Don't forget to give the medication to avoid double-dosing
+                Don&apos;t forget to give the medication to avoid double-dosing
               </p>
             )}
           </div>

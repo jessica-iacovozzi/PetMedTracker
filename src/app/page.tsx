@@ -85,7 +85,7 @@ export default async function Home() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">How It Works</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Simple steps to keep your pet's medication schedule on track
+              Simple steps to keep your pet&apos;s medication schedule on track
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -144,7 +144,7 @@ export default async function Home() {
       {/* CTA Section */}
       <section className="py-20 bg-blue-600 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Your Pet's Health Matters</h2>
+          <h2 className="text-3xl font-bold mb-4">Your Pet&apos;s Health Matters</h2>
           <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
             Join pet owners who never miss a medication dose. Start protecting
             your furry family today.
