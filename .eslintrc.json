@@ -4,6 +4,11 @@
     "next/typescript"
   ],
   "rules": {
-    "no-unused-vars": "warn"
+    "no-unused-vars": "warn",
+    "no-explicit-any": "warn",
+    "no-require-imports": "warn",
+    "react/display-name": "warn",
+    "no-non-null-asserted-optional-chain": "warn",
+    "react/no-unescaped-entities": "warn"
   }
 }
