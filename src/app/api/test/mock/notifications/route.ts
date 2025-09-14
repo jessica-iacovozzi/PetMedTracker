@@ -5,8 +5,12 @@ interface NotificationLog {
   id: string;
   type: string;
   recipient: string;
+  subject: string;
   message: string;
-  timestamp: string;
+  pet_name: string;
+  medication_name: string;
+  scheduled_time: string;
+  sent_at: string;
   status: string;
 }
 
