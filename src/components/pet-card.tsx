@@ -22,6 +22,8 @@ interface Medication {
   id: string;
   name: string;
   dosage: string;
+  frequency: string;
+  timing: string;
   nextDose?: string;
   status: "due" | "upcoming" | "given";
 }
@@ -53,6 +55,8 @@ export default function PetCard({
         id: "1",
         name: "Heartgard Plus",
         dosage: "1 tablet",
+        frequency: "monthly",
+        timing: "morning",
         nextDose: "2:00 PM",
         status: "due",
       },
@@ -60,6 +64,8 @@ export default function PetCard({
         id: "2",
         name: "Apoquel",
         dosage: "16mg",
+        frequency: "daily",
+        timing: "evening",
         nextDose: "6:00 PM",
         status: "upcoming",
       },

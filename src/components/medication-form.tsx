@@ -123,7 +123,16 @@ export default function MedicationForm({
           setError(result.error);
         }
       } else {
-        onSubmit(formData);
+        // Transform formData to match Medication interface
+        const medicationForCallback: Medication = {
+          pet_id: formData.petId,
+          name: formData.name,
+          dosage: formData.dosage,
+          frequency: formData.frequency,
+          timing: formData.timing,
+          duration: formData.duration,
+        };
+        onSubmit(medicationForCallback);
         onSuccess();
       }
     } catch (err) {

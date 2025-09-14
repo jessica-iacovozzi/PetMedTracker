@@ -2,16 +2,9 @@
 
 import { User } from "@supabase/supabase-js";
 import { Button } from "./ui/button";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
 import { createSupabaseClient } from "../../supabase/client";
 
-interface StripePlan {
+export interface StripePlan {
   id: string;
   object: string;
   active: boolean;

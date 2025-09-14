@@ -12,23 +12,29 @@ import OnboardingNotificationSetup from "./onboarding-notification-setup";
 import OnboardingCompletion from "./onboarding-completion";
 import { useRouter } from "next/navigation";
 
+interface PetSetupData {
+  name: string;
+  species: string;
+  photo?: string;
+}
+
+interface MedicationSetupData {
+  name: string;
+  dosage: string;
+  frequency: string;
+  timing: string;
+  duration?: string;
+}
+
+interface NotificationSetupData {
+  emailEnabled: boolean;
+  pushEnabled: boolean;
+}
+
 interface OnboardingData {
-  pet?: {
-    name: string;
-    species: string;
-    photo?: string;
-  };
-  medication?: {
-    name: string;
-    dosage: string;
-    frequency: string;
-    timing: string;
-    duration?: string;
-  };
-  notifications?: {
-    emailEnabled: boolean;
-    pushEnabled: boolean;
-  };
+  pet?: PetSetupData;
+  medication?: MedicationSetupData;
+  notifications?: NotificationSetupData;
 }
 
 export default function OnboardingFlow() {
@@ -59,7 +65,13 @@ export default function OnboardingFlow() {
     }
   };
 
-  const handleStepComplete = (stepData: Record<string, unknown>) => {
+  const handleStepComplete = (
+    stepData: 
+      | { pet: PetSetupData }
+      | { medication: MedicationSetupData }
+      | NotificationSetupData
+      | Record<string, unknown>
+  ) => {
     setOnboardingData({ ...onboardingData, ...stepData });
     handleNext();
   };

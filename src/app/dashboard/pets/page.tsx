@@ -28,18 +28,22 @@ import { getPets, deletePetAction, checkUserSubscription } from "@/app/actions";
 import { createSupabaseClient } from "../../../../supabase/client";
 import { useRouter } from "next/navigation";
 
+interface Medication {
+  id: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  timing: string;
+  nextDose?: string;
+  status: "due" | "upcoming" | "given";
+}
+
 interface Pet {
   id: string;
   name: string;
   species: string;
   photo?: string;
-  medications?: Array<{
-    id: string;
-    name: string;
-    dosage: string;
-    frequency: string;
-    timing: string;
-  }>;
+  medications?: Medication[];
 }
 
 export default function PetsPage() {

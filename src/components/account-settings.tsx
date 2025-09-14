@@ -45,6 +45,8 @@ interface Subscription {
   status?: string;
   current_period_end?: number;
   cancel_at_period_end?: boolean;
+  amount?: number;
+  interval?: string;
 }
 
 interface AccountSettingsProps {
@@ -163,9 +165,7 @@ export default function AccountSettings({
                   id="name"
                   name="name"
                   type="text"
-                  defaultValue={
-                    userProfile?.name || userProfile?.full_name || ""
-                  }
+                  defaultValue={userProfile?.full_name || ""}
                   placeholder="Enter your full name"
                   required
                 />
@@ -292,8 +292,8 @@ export default function AccountSettings({
                 <div>
                   <h4 className="font-medium">Premium Plan</h4>
                   <p className="text-sm text-muted-foreground">
-                    ${(subscription.amount / 100).toFixed(2)}/
-                    {subscription.interval}
+                    ${subscription.amount ? (subscription.amount / 100).toFixed(2) : '0.00'}/
+                    {subscription.interval || 'month'}
                   </p>
                   {subscription.current_period_end && (
                     <p className="text-sm text-muted-foreground">

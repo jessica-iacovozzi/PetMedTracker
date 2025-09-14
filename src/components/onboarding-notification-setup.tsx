@@ -28,7 +28,7 @@ export default function OnboardingNotificationSetup({
   });
 
   const handleSubmit = () => {
-    onComplete({ notifications });
+    onComplete(notifications);
   };
 
   return (

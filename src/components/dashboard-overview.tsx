@@ -16,24 +16,27 @@ import ReminderCard from "./reminder-card";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+interface Medication {
+  id: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  timing: string;
+  nextDose?: string;
+  status: "due" | "upcoming" | "given";
+  reminders?: {
+    id: string;
+    scheduled_time: string;
+    status: string;
+  }[];
+}
+
 interface Pet {
   id: string;
   name: string;
   species: string;
   photo?: string;
-  medications?: {
-    id: string;
-    name: string;
-    dosage: string;
-    frequency: string;
-    status: "due" | "upcoming" | "given";
-    nextDose?: string;
-    reminders: {
-      id: string;
-      scheduled_time: string;
-      status: string;
-    }[];
-  }[];
+  medications?: Medication[];
 }
 
 interface Reminder {
