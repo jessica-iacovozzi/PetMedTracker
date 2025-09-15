@@ -5,7 +5,8 @@ describe('Environment Variable Management', () => {
 
   beforeEach(() => {
     jest.resetModules()
-    process.env = { ...originalEnv }
+    // Create a new object to avoid read-only property issues
+    process.env = Object.assign({}, originalEnv)
   })
 
   afterAll(() => {
@@ -28,7 +29,12 @@ describe('Environment Variable Management', () => {
     })
 
     it('should detect production environment from NODE_ENV', () => {
-      process.env.NODE_ENV = 'production'
+      // Use Object.defineProperty to override read-only property
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: 'production',
+        writable: true,
+        configurable: true
+      })
       delete process.env.VERCEL_ENV
       
       const { configUtils } = require('@/lib/config')
@@ -36,7 +42,12 @@ describe('Environment Variable Management', () => {
     })
 
     it('should default to development environment', () => {
-      delete process.env.NODE_ENV
+      // Use Object.defineProperty to override read-only property
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: undefined,
+        writable: true,
+        configurable: true
+      })
       delete process.env.VERCEL_ENV
       
       const { configUtils } = require('@/lib/config')
@@ -159,7 +170,12 @@ describe('Environment Variable Management', () => {
 
     it('should correctly identify development environment', () => {
       delete process.env.VERCEL_ENV
-      delete process.env.NODE_ENV
+      // Use Object.defineProperty to override read-only property
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: undefined,
+        writable: true,
+        configurable: true
+      })
       
       const { isProduction, isStaging, isDevelopment } = require('@/lib/config')
       expect(isProduction()).toBe(false)
