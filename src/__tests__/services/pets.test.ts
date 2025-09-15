@@ -186,8 +186,23 @@ describe("Pets Service", () => {
           id: "pet-1",
           name: "Buddy",
           species: "dog",
+          user_id: "user-1",
+          breed: undefined,
+          age: undefined,
+          weight: undefined,
+          photo: undefined,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
           medications: [
-            { id: "med-1", name: "Heartgard Plus", dosage: "1 tablet" },
+            { 
+              id: "med-1", 
+              name: "Heartgard Plus", 
+              dosage: "1 tablet",
+              frequency: "daily",
+              timing: "08:00",
+              duration: undefined,
+              created_at: new Date().toISOString()
+            },
           ],
         },
       ];

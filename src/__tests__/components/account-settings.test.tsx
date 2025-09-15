@@ -26,6 +26,31 @@ describe("AccountSettings", () => {
     id: "user-1",
     email: "test@example.com",
     user_metadata: {},
+    app_metadata: {},
+    aud: "authenticated",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    email_confirmed_at: new Date().toISOString(),
+    phone_confirmed_at: undefined,
+    confirmation_sent_at: undefined,
+    recovery_sent_at: undefined,
+    email_change_sent_at: undefined,
+    new_email: undefined,
+    invited_at: undefined,
+    action_link: undefined,
+    email_change: undefined,
+    phone: undefined,
+    phone_change: undefined,
+    phone_change_sent_at: undefined,
+    confirmed_at: new Date().toISOString(),
+    email_change_confirm_status: 0,
+    banned_until: undefined,
+    deleted_at: undefined,
+    is_anonymous: false,
+    role: "authenticated",
+    last_sign_in_at: new Date().toISOString(),
+    identities: [],
+    factors: []
   };
 
   const mockUserProfile = {
@@ -51,6 +76,7 @@ describe("AccountSettings", () => {
     mockActions.updateProfileAction.mockResolvedValue({ success: true });
     mockActions.updateNotificationPreferencesAction.mockResolvedValue({
       success: true,
+      data: {}
     });
     mockSupabaseInvoke.mockResolvedValue({
       data: { url: "https://billing.stripe.com/session/123" },

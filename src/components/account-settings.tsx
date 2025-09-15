@@ -53,7 +53,7 @@ interface AccountSettingsProps {
   user: User;
   userProfile: UserProfile;
   notificationPrefs: NotificationPreferences;
-  subscription: Subscription;
+  subscription: Subscription | null;
 }
 
 export default function AccountSettings({
