@@ -93,3 +93,11 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   unobserve: jest.fn(),
   disconnect: jest.fn(),
 }));
+
+// Mock pointer capture methods
+Element.prototype.hasPointerCapture = jest.fn(() => false);
+Element.prototype.setPointerCapture = jest.fn();
+Element.prototype.releasePointerCapture = jest.fn();
+
+// Mock scrollIntoView method
+Element.prototype.scrollIntoView = jest.fn();

@@ -86,10 +86,9 @@ describe("PetProfileForm", () => {
 
     // Wait for options to appear and click on dog option
     await waitFor(() => {
-      const dogOption = screen.getByRole("option", { name: /dog/i });
-      expect(dogOption).toBeInTheDocument();
+      expect(screen.getByRole("option", { name: "Dog" })).toBeInTheDocument();
     });
-    await user.click(screen.getByRole("option", { name: /dog/i }));
+    await user.click(screen.getByRole("option", { name: "Dog" }));
 
     // Submit form
     await user.click(screen.getByRole("button", { name: /add pet/i }));
@@ -127,15 +126,15 @@ describe("PetProfileForm", () => {
     const selectTrigger = screen.getByRole("combobox");
     await user.click(selectTrigger);
     await waitFor(() => {
-      expect(screen.getByRole("option", { name: /dog/i })).toBeInTheDocument();
+      expect(screen.getByRole("option", { name: "Dog" })).toBeInTheDocument();
     });
-    await user.click(screen.getByRole("option", { name: /dog/i }));
+    await user.click(screen.getByRole("option", { name: "Dog" }));
 
     // Submit form
     await user.click(screen.getByRole("button", { name: /add pet/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/upgrade to premium/i)).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: /upgrade to premium/i })).toBeInTheDocument();
     });
   });
 
@@ -215,10 +214,12 @@ describe("PetProfileForm", () => {
     await user.type(screen.getByLabelText(/pet name/i), "Buddy");
     const selectTrigger = screen.getByRole("combobox");
     await user.click(selectTrigger);
+    
+    // Wait for the select content to be rendered
     await waitFor(() => {
-      expect(screen.getByRole("option", { name: /dog/i })).toBeInTheDocument();
+      expect(screen.getByRole("option", { name: "Dog" })).toBeInTheDocument();
     });
-    await user.click(screen.getByRole("option", { name: /dog/i }));
+    await user.click(screen.getByRole("option", { name: "Dog" }));
     await user.click(screen.getByRole("button", { name: /add pet/i }));
 
     await waitFor(() => {
