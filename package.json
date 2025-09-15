@@ -4,7 +4,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest",
+    "test:unit": "jest",
+    "test:integration": "jest --testPathPattern=integration",
+    "test:e2e": "playwright test",
+    "test:watch": "jest --watch",
+    "db:setup:test": "echo 'Database setup for tests - implement as needed'"
   },
   "dependencies": {
     "@polar-sh/sdk": "^0.26.1",
