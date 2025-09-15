@@ -10,14 +10,14 @@ describe("Medication Service Integration Tests", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     mockSupabase = {
       auth: {
         getUser: jest.fn(),
       },
       from: jest.fn(),
     };
-    
+
     (createClient as jest.Mock).mockResolvedValue(mockSupabase);
   });
 
@@ -51,9 +51,11 @@ describe("Medication Service Integration Tests", () => {
       mockSupabase.from.mockReturnValue(mockChain);
 
       const supabase = await createClient();
-      
+
       // Test the integration flow
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       expect(user).toEqual(mockUser);
 
       const result = await supabase
@@ -69,13 +71,15 @@ describe("Medication Service Integration Tests", () => {
 
     it("should handle authentication flow", async () => {
       const mockUser = { id: "user-123" };
-      
+
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: mockUser },
       });
 
       const supabase = await createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       expect(user).toEqual(mockUser);
       expect(mockSupabase.auth.getUser).toHaveBeenCalled();
@@ -87,7 +91,9 @@ describe("Medication Service Integration Tests", () => {
       });
 
       const supabase = await createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       expect(user).toBeNull();
       expect(mockSupabase.auth.getUser).toHaveBeenCalled();

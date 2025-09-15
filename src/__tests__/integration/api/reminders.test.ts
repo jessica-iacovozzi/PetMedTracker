@@ -12,14 +12,14 @@ describe("/api/reminders Integration Tests", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     mockSupabase = {
       auth: {
         getUser: jest.fn(),
       },
       from: jest.fn(),
     };
-    
+
     (createClient as jest.Mock).mockResolvedValue(mockSupabase);
   });
 

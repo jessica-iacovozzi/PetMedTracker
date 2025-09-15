@@ -9,9 +9,7 @@ const createJestConfig = nextJest({
 const integrationJestConfig = {
   setupFilesAfterEnv: ["<rootDir>/jest.setup.integration.js"],
   testEnvironment: "node", // Use node environment for API/database tests
-  testMatch: [
-    "<rootDir>/src/__tests__/integration/**/*.test.{js,jsx,ts,tsx}",
-  ],
+  testMatch: ["<rootDir>/src/__tests__/integration/**/*.test.{js,jsx,ts,tsx}"],
   testPathIgnorePatterns: [
     "<rootDir>/.next/",
     "<rootDir>/node_modules/",
