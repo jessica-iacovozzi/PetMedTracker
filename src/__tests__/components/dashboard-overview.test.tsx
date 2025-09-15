@@ -29,25 +29,25 @@ describe("DashboardOverview", () => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       medications: [
-        { 
-          id: "1", 
-          name: "Heartgard Plus", 
+        {
+          id: "1",
+          name: "Heartgard Plus",
           dosage: "1 tablet",
           frequency: "daily",
           timing: "08:00",
           duration: undefined,
           created_at: new Date().toISOString(),
-          status: "due" as const
+          status: "due" as const,
         },
-        { 
-          id: "2", 
-          name: "Apoquel", 
+        {
+          id: "2",
+          name: "Apoquel",
           dosage: "16mg",
           frequency: "daily",
           timing: "12:00",
           duration: undefined,
           created_at: new Date().toISOString(),
-          status: "due" as const
+          status: "due" as const,
         },
       ],
     },
@@ -62,16 +62,18 @@ describe("DashboardOverview", () => {
       photo: undefined,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      medications: [{ 
-        id: "3", 
-        name: "Revolution", 
-        dosage: "0.75ml",
-        frequency: "monthly",
-        timing: "09:00",
-        duration: undefined,
-        created_at: new Date().toISOString(),
-        status: "due" as const
-      }],
+      medications: [
+        {
+          id: "3",
+          name: "Revolution",
+          dosage: "0.75ml",
+          frequency: "monthly",
+          timing: "09:00",
+          duration: undefined,
+          created_at: new Date().toISOString(),
+          status: "due" as const,
+        },
+      ],
     },
   ];
 

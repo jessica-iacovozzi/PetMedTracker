@@ -7,7 +7,7 @@ This document explains how environment variables are managed across different en
 The application uses a centralized configuration system that automatically detects the current environment and loads the appropriate variables. This ensures that:
 
 - Local development uses development variables
-- Vercel Preview deployments use staging variables  
+- Vercel Preview deployments use staging variables
 - Vercel Production deployments use production variables
 - All environments are isolated and secure
 
@@ -34,6 +34,7 @@ Environment-specific variables use prefixes:
 - **Development**: No prefix (fallback)
 
 ### Example:
+
 ```bash
 # Development (no prefix)
 SUPABASE_URL=https://dev.supabase.co
@@ -41,26 +42,30 @@ SUPABASE_URL=https://dev.supabase.co
 # Staging
 STAGING_SUPABASE_URL=https://staging.supabase.co
 
-# Production  
+# Production
 PROD_SUPABASE_URL=https://prod.supabase.co
 ```
 
 ## Required Variables
 
 ### Supabase Configuration
+
 - `SUPABASE_URL` - Supabase project URL
 - `SUPABASE_ANON_KEY` - Public anon key
 - `SUPABASE_SERVICE_KEY` - Service role key (server-side only)
 - `SUPABASE_PROJECT_ID` - Project identifier
 
 ### Stripe Configuration
-- `STRIPE_SECRET_KEY` - Stripe secret key (sk_test_ for staging, sk_live_ for production)
+
+- `STRIPE_SECRET_KEY` - Stripe secret key (sk*test* for staging, sk*live* for production)
 - `STRIPE_WEBHOOK_SECRET` - Webhook endpoint secret
 
 ### App Configuration
+
 - `NEXT_PUBLIC_APP_URL` - Application base URL (public, available on client)
 
 ### Deployment Configuration (CI/CD)
+
 - `VERCEL_TOKEN` - Vercel API token for deployments
 - `VERCEL_ORG_ID` - Vercel organization ID
 - `VERCEL_PROJECT_ID` - Vercel project ID
@@ -70,6 +75,7 @@ PROD_SUPABASE_URL=https://prod.supabase.co
 ### 1. Local Development
 
 1. Copy `.env.example` to `.env.local`:
+
    ```bash
    cp .env.example .env.local
    ```
@@ -108,13 +114,14 @@ PROD_NEXT_PUBLIC_APP_URL=https://petmeds.app
 ## Usage in Code
 
 ### Import Configuration
+
 ```typescript
-import { config, isProduction, isStaging, isDevelopment } from '@/lib/config'
+import { config, isProduction, isStaging, isDevelopment } from "@/lib/config";
 
 // Access configuration
-console.log(config.supabase.url)
-console.log(config.stripe.secretKey)
-console.log(config.app.url)
+console.log(config.supabase.url);
+console.log(config.stripe.secretKey);
+console.log(config.app.url);
 
 // Environment checks
 if (isProduction()) {
@@ -131,25 +138,27 @@ if (isDevelopment()) {
 ```
 
 ### Supabase Clients
+
 ```typescript
-import { createClient } from '@/supabase/client'
-import { createClient as createServerClient } from '@/supabase/server'
+import { createClient } from "@/supabase/client";
+import { createClient as createServerClient } from "@/supabase/server";
 
 // Automatically uses correct environment variables
-const supabase = createClient()
-const serverSupabase = await createServerClient()
+const supabase = createClient();
+const serverSupabase = await createServerClient();
 ```
 
 ### API Routes
+
 ```typescript
-import { config } from '@/lib/config'
+import { config } from "@/lib/config";
 
 export async function POST(request: Request) {
   // Use environment-specific Stripe key
-  const stripe = new Stripe(config.stripe.secretKey)
-  
+  const stripe = new Stripe(config.stripe.secretKey);
+
   // Environment-specific logic
-  if (config.environment === 'production') {
+  if (config.environment === "production") {
     // Production behavior
   }
 }
@@ -175,6 +184,7 @@ Missing required environment variable: SUPABASE_URL (environment: production)
 ## Debugging
 
 ### Check Current Configuration
+
 Visit `/api/health` in your browser to see the current environment and configuration status (sensitive values are hidden in production).
 
 ### Common Issues
@@ -218,6 +228,7 @@ npm run test src/__tests__/lib/config.test.ts
 ```
 
 Tests cover:
+
 - Environment detection logic
 - Variable resolution with prefixes
 - Fallback behavior

@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   if (process.env.NODE_ENV === "production") {
     return NextResponse.json(
       { error: "Test endpoints are not available in production" },
-      { status: 403 }
+      { status: 403 },
     );
   }
   try {
@@ -71,7 +71,10 @@ export async function POST(request: NextRequest) {
     }
   } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Mock Stripe API error", details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: "Mock Stripe API error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 },
     );
   }
@@ -82,10 +85,10 @@ export async function GET(request: NextRequest) {
   if (process.env.NODE_ENV === "production") {
     return NextResponse.json(
       { error: "Test endpoints are not available in production" },
-      { status: 403 }
+      { status: 403 },
     );
   }
-  
+
   const { searchParams } = new URL(request.url);
   const session_id = searchParams.get("session_id");
   const user_id = searchParams.get("user_id");

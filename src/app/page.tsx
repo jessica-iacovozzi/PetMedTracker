@@ -3,13 +3,7 @@ import Navbar from "@/components/navbar";
 import PricingCard, { StripePlan } from "@/components/pricing-card";
 import Footer from "@/components/footer";
 import { createClient } from "../../supabase/server";
-import {
-  ArrowUpRight,
-  Heart,
-  Bell,
-  Calendar,
-  Smartphone,
-} from "lucide-react";
+import { ArrowUpRight, Heart, Bell, Calendar, Smartphone } from "lucide-react";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -144,7 +138,9 @@ export default async function Home() {
       {/* CTA Section */}
       <section className="py-20 bg-blue-600 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Your Pet&apos;s Health Matters</h2>
+          <h2 className="text-3xl font-bold mb-4">
+            Your Pet&apos;s Health Matters
+          </h2>
           <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
             Join pet owners who never miss a medication dose. Start protecting
             your furry family today.

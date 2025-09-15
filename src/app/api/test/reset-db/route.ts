@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   if (process.env.NODE_ENV === "production") {
     return NextResponse.json(
       { error: "Test endpoints are not available in production" },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -208,7 +208,10 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     console.error("Database reset error:", error);
     return NextResponse.json(
-      { error: "Failed to reset test database", details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: "Failed to reset test database",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 },
     );
   }

@@ -194,14 +194,14 @@ describe("Pets Service", () => {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           medications: [
-            { 
-              id: "med-1", 
-              name: "Heartgard Plus", 
+            {
+              id: "med-1",
+              name: "Heartgard Plus",
               dosage: "1 tablet",
               frequency: "daily",
               timing: "08:00",
               duration: undefined,
-              created_at: new Date().toISOString()
+              created_at: new Date().toISOString(),
             },
           ],
         },

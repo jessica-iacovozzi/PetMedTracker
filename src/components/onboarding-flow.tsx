@@ -66,11 +66,11 @@ export default function OnboardingFlow() {
   };
 
   const handleStepComplete = (
-    stepData: 
+    stepData:
       | { pet: PetSetupData }
       | { medication: MedicationSetupData }
       | NotificationSetupData
-      | Record<string, unknown>
+      | Record<string, unknown>,
   ) => {
     setOnboardingData({ ...onboardingData, ...stepData });
     handleNext();

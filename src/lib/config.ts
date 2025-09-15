@@ -166,7 +166,7 @@ function validateConfig(config: Config): void {
       value = value?.[key];
     }
 
-    if (!value || (typeof value === 'string' && value.trim() === "")) {
+    if (!value || (typeof value === "string" && value.trim() === "")) {
       missingFields.push(field);
     }
   });

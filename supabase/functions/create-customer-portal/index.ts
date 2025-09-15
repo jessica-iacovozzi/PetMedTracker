@@ -8,7 +8,7 @@ declare const Deno: {
 
 // @ts-ignore: ESM imports work in Deno runtime
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-// @ts-ignore: ESM imports work in Deno runtime  
+// @ts-ignore: ESM imports work in Deno runtime
 import Stripe from "https://esm.sh/stripe@17.6.0";
 
 const corsHeaders = {

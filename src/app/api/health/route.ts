@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
         {
           status: "unhealthy",
           error: "Database connection failed",
-          details: error instanceof Error ? error.message : 'Unknown error',
+          details: error instanceof Error ? error.message : "Unknown error",
           timestamp: new Date().toISOString(),
         },
         { status: 503 },
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       {
         status: "unhealthy",
         error: "Health check failed",
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: error instanceof Error ? error.message : "Unknown error",
         timestamp: new Date().toISOString(),
       },
       { status: 500 },

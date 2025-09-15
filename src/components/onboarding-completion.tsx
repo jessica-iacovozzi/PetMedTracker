@@ -91,7 +91,9 @@ export default function OnboardingCompletion({
 
         setIsComplete(true);
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Failed to complete onboarding");
+        setError(
+          err instanceof Error ? err.message : "Failed to complete onboarding",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -195,8 +197,8 @@ export default function OnboardingCompletion({
             🔔 Your first reminder is scheduled for {nextReminderTime}
           </p>
           <p className="text-sm text-blue-700 mt-1">
-            You&apos;ll receive a notification when it&apos;s time for {data.pet?.name}&apos;s
-            medication
+            You&apos;ll receive a notification when it&apos;s time for{" "}
+            {data.pet?.name}&apos;s medication
           </p>
         </div>
       )}

@@ -27,7 +27,9 @@ export default async function ForgotPassword(props: {
         <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-sm">
           <form className="flex flex-col space-y-6">
             <div className="space-y-2 text-center">
-              <h1 className="text-3xl font-semibold tracking-tight">Reset Password</h1>
+              <h1 className="text-3xl font-semibold tracking-tight">
+                Reset Password
+              </h1>
               <p className="text-sm text-muted-foreground">
                 Already have an account?{" "}
                 <Link

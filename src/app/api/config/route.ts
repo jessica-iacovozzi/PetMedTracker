@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { config, isProduction, isStaging, isDevelopment } from '@/lib/config'
+import { NextRequest, NextResponse } from "next/server";
+import { config, isProduction, isStaging, isDevelopment } from "@/lib/config";
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,11 +7,11 @@ export async function GET(request: NextRequest) {
     const environmentInfo = {
       environment: config.environment,
       timestamp: new Date().toISOString(),
-      version: process.env.npm_package_version || 'unknown',
+      version: process.env.npm_package_version || "unknown",
       isProduction: isProduction(),
       isStaging: isStaging(),
       isDevelopment: isDevelopment(),
-    }
+    };
 
     // Add debug info in non-production environments
     if (!isProduction()) {
@@ -22,18 +22,21 @@ export async function GET(request: NextRequest) {
           appUrl: config.app.url,
           // Never expose sensitive keys
         },
-      })
+      });
     }
 
-    return NextResponse.json(environmentInfo)
+    return NextResponse.json(environmentInfo);
   } catch (error: unknown) {
     return NextResponse.json(
       {
-        error: 'Configuration error',
-        message: error instanceof Error ? error.message : 'Unknown configuration error',
-        environment: process.env.NODE_ENV || 'unknown',
+        error: "Configuration error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Unknown configuration error",
+        environment: process.env.NODE_ENV || "unknown",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }

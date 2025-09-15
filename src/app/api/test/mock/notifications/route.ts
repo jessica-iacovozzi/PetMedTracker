@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   if (process.env.NODE_ENV === "production") {
     return NextResponse.json(
       { error: "Test endpoints are not available in production" },
-      { status: 403 }
+      { status: 403 },
     );
   }
   try {
@@ -59,7 +59,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to log notification", details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: "Failed to log notification",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 },
     );
   }
@@ -70,10 +73,10 @@ export async function GET(request: NextRequest) {
   if (process.env.NODE_ENV === "production") {
     return NextResponse.json(
       { error: "Test endpoints are not available in production" },
-      { status: 403 }
+      { status: 403 },
     );
   }
-  
+
   const { searchParams } = new URL(request.url);
   const action = searchParams.get("action");
 
@@ -105,10 +108,10 @@ export async function DELETE() {
   if (process.env.NODE_ENV === "production") {
     return NextResponse.json(
       { error: "Test endpoints are not available in production" },
-      { status: 403 }
+      { status: 403 },
     );
   }
-  
+
   notificationLogs = [];
   return NextResponse.json({
     success: true,

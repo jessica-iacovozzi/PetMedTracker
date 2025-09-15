@@ -14,10 +14,7 @@ import {
 } from "./ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Heart, Upload, Plus, Edit } from "lucide-react";
-import {
-  createPetAction,
-  updatePetAction,
-} from "@/app/actions";
+import { createPetAction, updatePetAction } from "@/app/actions";
 import {
   Dialog,
   DialogContent,

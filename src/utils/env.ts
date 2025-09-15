@@ -1,7 +1,7 @@
 // This file is deprecated. Use @/lib/config instead.
 // Keeping for backward compatibility during migration.
 
-import { config } from '@/lib/config';
+import { config } from "@/lib/config";
 
 // Re-export config for backward compatibility
 export { config };

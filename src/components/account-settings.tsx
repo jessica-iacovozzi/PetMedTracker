@@ -292,8 +292,11 @@ export default function AccountSettings({
                 <div>
                   <h4 className="font-medium">Premium Plan</h4>
                   <p className="text-sm text-muted-foreground">
-                    ${subscription.amount ? (subscription.amount / 100).toFixed(2) : '0.00'}/
-                    {subscription.interval || 'month'}
+                    $
+                    {subscription.amount
+                      ? (subscription.amount / 100).toFixed(2)
+                      : "0.00"}
+                    /{subscription.interval || "month"}
                   </p>
                   {subscription.current_period_end && (
                     <p className="text-sm text-muted-foreground">

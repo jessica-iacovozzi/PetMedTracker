@@ -18,15 +18,25 @@ function getSupabaseCredentials(): { url: string; serviceKey: string } {
   // Use production credentials for production environment
   if (vercelEnv === "production" || nodeEnv === "production") {
     return {
-      url: Deno.env.get("PROD_SUPABASE_URL") || Deno.env.get("SUPABASE_URL") || "",
-      serviceKey: Deno.env.get("PROD_SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+      url:
+        Deno.env.get("PROD_SUPABASE_URL") || Deno.env.get("SUPABASE_URL") || "",
+      serviceKey:
+        Deno.env.get("PROD_SUPABASE_SERVICE_ROLE_KEY") ||
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ||
+        "",
     };
   }
 
   // Use staging credentials for all other environments
   return {
-    url: Deno.env.get("STAGING_SUPABASE_URL") || Deno.env.get("SUPABASE_URL") || "",
-    serviceKey: Deno.env.get("STAGING_SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+    url:
+      Deno.env.get("STAGING_SUPABASE_URL") ||
+      Deno.env.get("SUPABASE_URL") ||
+      "",
+    serviceKey:
+      Deno.env.get("STAGING_SUPABASE_SERVICE_ROLE_KEY") ||
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ||
+      "",
   };
 }
 

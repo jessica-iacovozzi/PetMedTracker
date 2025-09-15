@@ -50,7 +50,7 @@ describe("AccountSettings", () => {
     role: "authenticated",
     last_sign_in_at: new Date().toISOString(),
     identities: [],
-    factors: []
+    factors: [],
   };
 
   const mockUserProfile = {
@@ -76,7 +76,7 @@ describe("AccountSettings", () => {
     mockActions.updateProfileAction.mockResolvedValue({ success: true });
     mockActions.updateNotificationPreferencesAction.mockResolvedValue({
       success: true,
-      data: {}
+      data: {},
     });
     mockSupabaseInvoke.mockResolvedValue({
       data: { url: "https://billing.stripe.com/session/123" },
