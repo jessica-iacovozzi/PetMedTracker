@@ -7,10 +7,11 @@
     "lint": "next lint",
     "test": "jest",
     "test:unit": "jest",
-    "test:integration": "jest --testPathPattern=integration",
+    "test:integration": "jest --testPathPatterns=integration",
     "test:e2e": "playwright test",
     "test:watch": "jest --watch",
-    "db:setup:test": "echo 'Database setup for tests - implement as needed'"
+    "db:setup:test": "echo 'Database setup for tests - implement as needed'",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@polar-sh/sdk": "^0.26.1",
