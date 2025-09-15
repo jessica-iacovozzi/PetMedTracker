@@ -63,14 +63,22 @@ jest.mock("./supabase/server", () => ({
   }),
 }));
 
-// Mock window.location
-Object.defineProperty(window, "location", {
-  value: {
-    href: "http://localhost:3000",
-    origin: "http://localhost:3000",
-  },
-  writable: true,
-});
+// Mock window.location - delete existing property first to avoid conflicts
+delete window.location;
+window.location = {
+  href: "http://localhost:3000",
+  origin: "http://localhost:3000",
+  protocol: "http:",
+  host: "localhost:3000",
+  hostname: "localhost",
+  port: "3000",
+  pathname: "/",
+  search: "",
+  hash: "",
+  assign: jest.fn(),
+  replace: jest.fn(),
+  reload: jest.fn(),
+};
 
 // Mock ResizeObserver
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
