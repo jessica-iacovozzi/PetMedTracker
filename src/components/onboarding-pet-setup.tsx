@@ -110,7 +110,7 @@ export default function OnboardingPetSetup({
 
         {/* Pet Name */}
         <div className="space-y-2">
-          <Label htmlFor="name">Pet Name *</Label>
+          <Label htmlFor="name" aria-labelledby="name">Pet Name *</Label>
           <Input
             id="name"
             placeholder="e.g., Buddy, Whiskers, Charlie"
@@ -122,7 +122,7 @@ export default function OnboardingPetSetup({
 
         {/* Species */}
         <div className="space-y-2">
-          <Label htmlFor="species">Species *</Label>
+          <Label htmlFor="species" aria-labelledby="species">Species *</Label>
           <Select
             value={formData.species}
             onValueChange={(value) =>
@@ -130,7 +130,7 @@ export default function OnboardingPetSetup({
             }
             required
           >
-            <SelectTrigger>
+            <SelectTrigger id="species">
               <SelectValue placeholder="Select your pet's species" />
             </SelectTrigger>
             <SelectContent>

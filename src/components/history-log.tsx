@@ -226,7 +226,7 @@ export default function HistoryLog({
             <div>
               <label className="text-sm font-medium mb-2 block">Pet</label>
               <Select value={selectedPet} onValueChange={setSelectedPet}>
-                <SelectTrigger>
+                <SelectTrigger id="pet">
                   <SelectValue placeholder="All pets" />
                 </SelectTrigger>
                 <SelectContent>

@@ -34,7 +34,7 @@ export default async function ResetPassword(props: {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">
+                <Label htmlFor="password" aria-labelledby="password" className="text-sm font-medium">
                   New password
                 </Label>
                 <Input

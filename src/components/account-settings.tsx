@@ -160,7 +160,7 @@ export default function AccountSettings({
           <form action={handleProfileUpdate} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name" aria-labelledby="name">Full Name</Label>
                 <Input
                   id="name"
                   name="name"
@@ -171,7 +171,7 @@ export default function AccountSettings({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email" aria-labelledby="email">Email Address</Label>
                 <Input
                   id="email"
                   name="email"
@@ -189,7 +189,7 @@ export default function AccountSettings({
               <h4 className="text-sm font-medium">Change Password</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="password">New Password</Label>
+                  <Label htmlFor="password" aria-labelledby="password">New Password</Label>
                   <Input
                     id="password"
                     name="password"
@@ -199,7 +199,7 @@ export default function AccountSettings({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword" aria-labelledby="confirmPassword">Confirm Password</Label>
                   <Input
                     id="confirmPassword"
                     name="confirmPassword"
@@ -235,7 +235,7 @@ export default function AccountSettings({
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="email-notifications" className="text-base">
+              <Label htmlFor="email-notifications" aria-labelledby="email-notifications" className="text-base">
                 Email Reminders
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -251,7 +251,7 @@ export default function AccountSettings({
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="push-notifications" className="text-base">
+              <Label htmlFor="push-notifications" aria-labelledby="push-notifications" className="text-base">
                 Push Notifications
               </Label>
               <p className="text-sm text-muted-foreground">
