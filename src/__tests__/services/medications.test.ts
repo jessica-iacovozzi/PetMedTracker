@@ -1,9 +1,12 @@
 import * as actions from "@/app/actions";
-import { createClient } from "../../../supabase/client";
+import { createClient } from "../../../supabase/server";
 
-// Mock Supabase client
-jest.mock("../../../supabase/client");
-const mockSupabase = createClient as jest.MockedFunction<typeof createClient>;
+// Mock Supabase server client
+jest.mock("../../../supabase/server", () => ({
+  createClient: jest.fn(),
+}));
+
+const mockCreateClient = jest.mocked(createClient);
 
 describe("Medications Service", () => {
   const mockUser = { id: "user-1" };
@@ -26,7 +29,7 @@ describe("Medications Service", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSupabase.mockReturnValue(mockSupabaseInstance as any);
+    mockCreateClient.mockResolvedValue(mockSupabaseInstance as any);
   });
 
   describe("createMedicationAction", () => {

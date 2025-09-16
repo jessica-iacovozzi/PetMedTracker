@@ -1,32 +1,52 @@
 import * as actions from "@/app/actions";
-import { createClient } from "../../../supabase/client";
+import { createClient } from "../../../supabase/server";
 
-// Mock Supabase client
-jest.mock("../../../supabase/client");
-const mockSupabase = createClient as jest.MockedFunction<typeof createClient>;
+// Mock Supabase server client
+jest.mock("../../../supabase/server", () => ({
+  createClient: jest.fn(),
+}));
+
+const mockCreateClient = jest.mocked(createClient);
 
 describe("Pets Service", () => {
   const mockUser = { id: "user-1" };
+  
+  // Create a more flexible mock that can be reconfigured per test
+  const createMockQueryChain = (finalResult: any = { data: null, error: null }) => {
+    const chain = {
+      select: jest.fn(),
+      insert: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      eq: jest.fn(),
+      order: jest.fn(),
+      single: jest.fn(),
+    };
+    
+    // Make all methods return the chain for proper chaining
+    chain.select.mockReturnValue(chain);
+    chain.insert.mockReturnValue(chain);
+    chain.update.mockReturnValue(chain);
+    chain.delete.mockReturnValue(chain);
+    chain.eq.mockReturnValue(chain);
+    chain.order.mockReturnValue(chain);
+    chain.single.mockResolvedValue(finalResult);
+    
+    return chain;
+  };
+  
   const mockSupabaseInstance = {
     auth: {
       getUser: jest
         .fn()
         .mockResolvedValue({ data: { user: mockUser }, error: null }),
     },
-    from: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      delete: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      order: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({ data: null, error: null }),
-    })),
+    from: jest.fn(() => createMockQueryChain()),
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSupabase.mockReturnValue(mockSupabaseInstance as any);
+    mockCreateClient.mockResolvedValue(mockSupabaseInstance as any);
   });
 
   describe("createPetAction", () => {
@@ -40,28 +60,44 @@ describe("Pets Service", () => {
       };
 
       const mockCreatedPet = { id: "pet-1", ...mockPetData, user_id: "user-1" };
-      mockSupabaseInstance.from().single.mockResolvedValue({
-        data: mockCreatedPet,
-        error: null,
-      });
+      
+      // Mock the subscription check first (returns no subscription)
+      const mockSubscriptionChain = createMockQueryChain({ data: null, error: null });
+      
+      // Mock the existing pets check (returns empty array)
+      const mockExistingPetsChain = createMockQueryChain({ data: [], error: null });
+      
+      // Mock the pet creation
+      const mockCreatePetChain = createMockQueryChain({ data: mockCreatedPet, error: null });
+      
+      mockSupabaseInstance.from
+        .mockReturnValueOnce(mockSubscriptionChain) // First call for subscription check
+        .mockReturnValueOnce(mockExistingPetsChain) // Second call for existing pets check  
+        .mockReturnValueOnce(mockCreatePetChain); // Third call for pet creation
 
       const result = await actions.createPetAction(mockPetData);
 
       expect(result).toEqual({ success: true, data: mockCreatedPet });
+      expect(mockSupabaseInstance.from).toHaveBeenCalledWith("subscriptions");
       expect(mockSupabaseInstance.from).toHaveBeenCalledWith("pets");
     });
 
     it("enforces free plan limits", async () => {
+      // Mock the subscription check (returns no subscription)
+      const mockSubscriptionChain = createMockQueryChain({ data: null, error: null });
+      
       // Mock existing pets query to return 1 pet (free plan limit)
-      const mockFromChain = {
+      // This needs to be a direct promise resolution since it's awaited with destructuring
+      const mockExistingPetsChain = {
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
       };
-      mockFromChain.select.mockResolvedValue({
-        data: [{ id: "existing-pet" }],
-        error: null,
-      });
-      mockSupabaseInstance.from.mockReturnValue(mockFromChain as any);
+      // Make the final call resolve with existing pets data
+      mockExistingPetsChain.eq.mockResolvedValue({ data: [{ id: "existing-pet" }], error: null });
+      
+      mockSupabaseInstance.from
+        .mockReturnValueOnce(mockSubscriptionChain) // First call for subscription check
+        .mockReturnValueOnce(mockExistingPetsChain as any); // Second call for existing pets check
 
       const mockPetData = {
         name: "Second Pet",
@@ -81,10 +117,19 @@ describe("Pets Service", () => {
         species: "dog",
       };
 
-      mockSupabaseInstance.from().single.mockResolvedValue({
-        data: null,
-        error: { message: "Database error" },
-      });
+      // Mock the subscription check (returns no subscription)
+      const mockSubscriptionChain = createMockQueryChain({ data: null, error: null });
+      
+      // Mock existing pets query (returns empty array)
+      const mockExistingPetsChain = createMockQueryChain({ data: [], error: null });
+      
+      // Mock the pet creation with database error
+      const mockCreatePetChain = createMockQueryChain({ data: null, error: { message: "Database error" } });
+      
+      mockSupabaseInstance.from
+        .mockReturnValueOnce(mockSubscriptionChain)
+        .mockReturnValueOnce(mockExistingPetsChain)
+        .mockReturnValueOnce(mockCreatePetChain);
 
       const result = await actions.createPetAction(mockPetData);
 
@@ -118,10 +163,16 @@ describe("Pets Service", () => {
       };
 
       const mockUpdatedPet = { id: petId, ...updateData, user_id: "user-1" };
-      mockSupabaseInstance.from().single.mockResolvedValue({
-        data: mockUpdatedPet,
+      
+      // Ensure auth returns the user
+      mockSupabaseInstance.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
         error: null,
       });
+      
+      // Mock the update chain
+      const mockUpdateChain = createMockQueryChain({ data: mockUpdatedPet, error: null });
+      mockSupabaseInstance.from.mockReturnValue(mockUpdateChain);
 
       const result = await actions.updatePetAction(petId, updateData);
 
@@ -132,10 +183,15 @@ describe("Pets Service", () => {
       const petId = "pet-1";
       const updateData = { name: "Updated Name", species: "dog" };
 
-      mockSupabaseInstance.from().single.mockResolvedValue({
-        data: null,
-        error: { message: "Pet not found" },
+      // Ensure auth returns the user
+      mockSupabaseInstance.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null,
       });
+
+      // Mock the update chain with error
+      const mockUpdateChain = createMockQueryChain({ data: null, error: { message: "Pet not found" } });
+      mockSupabaseInstance.from.mockReturnValue(mockUpdateChain);
 
       const result = await actions.updatePetAction(petId, updateData);
 
@@ -147,6 +203,13 @@ describe("Pets Service", () => {
     it("deletes a pet successfully", async () => {
       const petId = "pet-1";
 
+      // Ensure auth returns the user
+      mockSupabaseInstance.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null,
+      });
+
+      // Mock the delete chain
       const mockDeleteChain = {
         delete: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
@@ -162,6 +225,13 @@ describe("Pets Service", () => {
     it("handles delete errors", async () => {
       const petId = "pet-1";
 
+      // Ensure auth returns the user
+      mockSupabaseInstance.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null,
+      });
+
+      // Mock the delete chain with error
       const mockDeleteChain = {
         delete: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),

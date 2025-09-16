@@ -1,9 +1,12 @@
 import * as actions from "@/app/actions";
-import { createClient } from "../../../supabase/client";
+import { createClient } from "../../../supabase/server";
 
-// Mock Supabase client
-jest.mock("../../../supabase/client");
-const mockSupabase = createClient as jest.MockedFunction<typeof createClient>;
+// Mock Supabase server client
+jest.mock("../../../supabase/server", () => ({
+  createClient: jest.fn(),
+}));
+
+const mockCreateClient = jest.mocked(createClient);
 
 describe("Subscription Service", () => {
   const mockSupabaseInstance = {
@@ -16,7 +19,7 @@ describe("Subscription Service", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSupabase.mockReturnValue(mockSupabaseInstance as any);
+    mockCreateClient.mockResolvedValue(mockSupabaseInstance as any);
   });
 
   describe("checkUserSubscription", () => {
@@ -114,7 +117,7 @@ describe("Subscription Service", () => {
             .mockResolvedValue({ data: { user: mockUser }, error: null }),
         },
       };
-      mockSupabase.mockReturnValue(mockSupabaseWithAuth as any);
+      mockCreateClient.mockResolvedValue(mockSupabaseWithAuth as any);
 
       // Mock checkUserSubscription to return false (free user)
       const mockQueryChain = {
@@ -153,7 +156,7 @@ describe("Subscription Service", () => {
             .mockResolvedValue({ data: { user: mockUser }, error: null }),
         },
       };
-      mockSupabase.mockReturnValue(mockSupabaseWithAuth as any);
+      mockCreateClient.mockResolvedValue(mockSupabaseWithAuth as any);
 
       // Mock checkUserSubscription to return false (free user)
       const mockQueryChain = {
@@ -196,7 +199,7 @@ describe("Subscription Service", () => {
             .mockResolvedValue({ data: { user: mockUser }, error: null }),
         },
       };
-      mockSupabase.mockReturnValue(mockSupabaseWithAuth as any);
+      mockCreateClient.mockResolvedValue(mockSupabaseWithAuth as any);
 
       // Mock checkUserSubscription to return true (subscribed user)
       const mockQueryChain = {
