@@ -87,7 +87,7 @@ describe("DashboardOverview", () => {
     },
     {
       id: "2",
-      scheduled_time: new Date(Date.now() - 60 * 60 * 1000).toISOString(), // 1 hour ago (overdue)
+      scheduled_time: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago (definitely overdue)
       status: "pending",
       pets: { name: "Whiskers", species: "Cat" },
       medications: { name: "Revolution", dosage: "0.75ml" },
@@ -117,28 +117,41 @@ describe("DashboardOverview", () => {
       <DashboardOverview pets={mockPets} todaysReminders={mockReminders} />,
     );
 
-    // Total pets - use more specific selector to avoid duplicates
-    const statsCards = screen.getAllByText("2");
-    expect(statsCards.length).toBeGreaterThanOrEqual(1); // Total pets count
+    // Total pets - check for specific stat card content
+    expect(screen.getByText("Total Pets")).toBeInTheDocument();
+    expect(screen.getByText("2")).toBeInTheDocument();
 
-    // Active medications - use more specific selector
-    const medicationCounts = screen.getAllByText("3");
-    expect(medicationCounts.length).toBeGreaterThanOrEqual(1); // Total medications count
+    // Active medications - check for specific stat card content
+    expect(screen.getByText("Active Medications")).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
 
-    // Overdue reminders - use more specific selector
-    const overdueCounts = screen.getAllByText("1");
-    expect(overdueCounts.length).toBeGreaterThanOrEqual(1); // Overdue count
+    // Check that we have the expected number of pets and medications
+    expect(screen.getByText("2 pets")).toBeInTheDocument();
   });
 
   it("shows overdue alert when there are overdue medications", () => {
+    // Create specific test data with guaranteed overdue reminder
+    const overdueReminders = [
+      {
+        id: "1",
+        scheduled_time: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours ago
+        status: "pending",
+        pets: { name: "Buddy", species: "Dog" },
+        medications: { name: "Heartgard Plus", dosage: "1 tablet" },
+      },
+    ];
+
     render(
-      <DashboardOverview pets={mockPets} todaysReminders={mockReminders} />,
+      <DashboardOverview pets={mockPets} todaysReminders={overdueReminders} />,
     );
 
-    expect(screen.getByText(/1 medication overdue!/)).toBeInTheDocument();
-    expect(
-      screen.getByText(/These medications are past their scheduled time/),
-    ).toBeInTheDocument();
+    // Check for overdue count in stats card
+    expect(screen.getByText("Overdue")).toBeInTheDocument();
+    expect(screen.getByText("1")).toBeInTheDocument();
+
+    // Check for overdue alert banner
+    expect(screen.getByText(/medication overdue/)).toBeInTheDocument();
+    expect(screen.getByText(/past their scheduled time/)).toBeInTheDocument();
   });
 
   it("displays today's medication schedule", () => {

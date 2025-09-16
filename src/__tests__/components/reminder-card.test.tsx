@@ -54,7 +54,9 @@ describe("ReminderCard", () => {
       <ReminderCard reminder={reminder} onMarkAsGiven={mockOnMarkAsGiven} />,
     );
 
-    expect(screen.getByText(/scheduled/i)).toBeInTheDocument();
+    expect(screen.getByText((content, element) => {
+      return content.toLowerCase().includes("scheduled");
+    })).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /mark as given/i }),
     ).toBeInTheDocument();
