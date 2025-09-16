@@ -63,9 +63,8 @@ jest.mock("./supabase/server", () => ({
   }),
 }));
 
-// Mock window.location - delete existing property first to avoid conflicts
-delete window.location;
-window.location = {
+// Mock window.location - safely handle existing property
+const mockLocation = {
   href: "http://localhost:3000",
   origin: "http://localhost:3000",
   protocol: "http:",
@@ -79,6 +78,70 @@ window.location = {
   replace: jest.fn(),
   reload: jest.fn(),
 };
+
+// Check if location is configurable before trying to redefine it
+const locationDescriptor = Object.getOwnPropertyDescriptor(window, 'location');
+if (locationDescriptor && locationDescriptor.configurable) {
+  Object.defineProperty(window, 'location', {
+    value: mockLocation,
+    writable: true,
+  });
+} else {
+  // If not configurable, try to mock individual properties
+  Object.keys(mockLocation).forEach(key => {
+    try {
+      if (typeof window.location[key] === 'function') {
+        window.location[key] = mockLocation[key];
+      }
+    } catch (e) {
+      // Silently ignore if property cannot be set
+    }
+  });
+}
+
+// Mock window.history to prevent navigation errors
+const mockHistory = {
+  pushState: jest.fn(),
+  replaceState: jest.fn(),
+  back: jest.fn(),
+  forward: jest.fn(),
+  go: jest.fn(),
+  length: 1,
+  state: null,
+};
+
+try {
+  Object.defineProperty(window, 'history', {
+    value: mockHistory,
+    writable: true,
+  });
+} catch (e) {
+  // If history cannot be redefined, mock individual methods
+  Object.keys(mockHistory).forEach(key => {
+    try {
+      if (typeof window.history[key] === 'function') {
+        window.history[key] = mockHistory[key];
+      }
+    } catch (err) {
+      // Silently ignore
+    }
+  });
+}
+
+// Mock Navigation API if it exists
+if (typeof window.navigation === 'undefined') {
+  Object.defineProperty(window, 'navigation', {
+    value: {
+      navigate: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      reload: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+    },
+    writable: true,
+  });
+}
 
 // Mock ResizeObserver
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
