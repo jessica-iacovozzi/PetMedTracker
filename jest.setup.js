@@ -1,5 +1,80 @@
 import "@testing-library/jest-dom";
 
+// Polyfill Web APIs for Next.js server components
+import { TextEncoder, TextDecoder } from 'util';
+
+// Mock Request and Response for Next.js server components
+global.Request = class Request {
+  constructor(input, init = {}) {
+    this.url = typeof input === 'string' ? input : input.url;
+    this.method = init.method || 'GET';
+    this.headers = new Map(Object.entries(init.headers || {}));
+    this.body = init.body || null;
+  }
+};
+
+global.Response = class Response {
+  constructor(body, init = {}) {
+    this.body = body;
+    this.status = init.status || 200;
+    this.statusText = init.statusText || 'OK';
+    this.headers = new Map(Object.entries(init.headers || {}));
+  }
+  
+  static json(data, init = {}) {
+    return new Response(JSON.stringify(data), {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...init.headers,
+      },
+    });
+  }
+};
+
+global.Headers = class Headers extends Map {
+  constructor(init) {
+    super();
+    if (init) {
+      if (Array.isArray(init)) {
+        init.forEach(([key, value]) => this.set(key, value));
+      } else if (typeof init === 'object') {
+        Object.entries(init).forEach(([key, value]) => this.set(key, value));
+      }
+    }
+  }
+  
+  get(name) {
+    return super.get(name.toLowerCase());
+  }
+  
+  set(name, value) {
+    return super.set(name.toLowerCase(), value);
+  }
+  
+  has(name) {
+    return super.has(name.toLowerCase());
+  }
+  
+  delete(name) {
+    return super.delete(name.toLowerCase());
+  }
+};
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock Next.js headers
+jest.mock("next/headers", () => ({
+  cookies: jest.fn(() => ({
+    getAll: jest.fn(() => []),
+    get: jest.fn(() => ({ value: "" })),
+    set: jest.fn(),
+    delete: jest.fn(),
+  })),
+  headers: jest.fn(() => new Map()),
+}));
+
 // Mock Next.js router
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
