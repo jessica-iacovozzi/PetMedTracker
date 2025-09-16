@@ -6,7 +6,13 @@ import { TextEncoder, TextDecoder } from 'util';
 // Mock Request and Response for Next.js server components
 global.Request = class Request {
   constructor(input, init = {}) {
-    this.url = typeof input === 'string' ? input : input.url;
+    // Use Object.defineProperty to create a proper read-only url property
+    Object.defineProperty(this, 'url', {
+      value: typeof input === 'string' ? input : input.url,
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     this.method = init.method || 'GET';
     this.headers = new Map(Object.entries(init.headers || {}));
     this.body = init.body || null;

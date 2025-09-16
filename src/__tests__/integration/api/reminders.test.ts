@@ -1,7 +1,20 @@
-// Mock Request globally for the test environment
-global.Request = class MockRequest {
-  constructor(public url: string, public init?: RequestInit) {}
-} as any;
+// Mock NextRequest for the test environment
+jest.mock("next/server", () => ({
+  NextRequest: jest.fn().mockImplementation((url: string, init?: RequestInit) => ({
+    url,
+    method: init?.method || 'GET',
+    headers: new Map(Object.entries(init?.headers || {})),
+    body: init?.body || null,
+    json: jest.fn().mockResolvedValue(JSON.parse(init?.body as string || '{}')),
+    text: jest.fn().mockResolvedValue(init?.body || ''),
+  })),
+  NextResponse: {
+    json: jest.fn((data, init) => ({
+      json: jest.fn().mockResolvedValue(data),
+      status: init?.status || 200,
+    })),
+  },
+}));
 
 import { NextRequest } from "next/server";
 import { POST } from "@/app/api/reminders/route";
