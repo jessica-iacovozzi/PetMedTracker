@@ -201,24 +201,35 @@ describe("Subscription Service", () => {
       mockCreateClient.mockResolvedValue(mockSupabaseWithAuth as any);
 
       // Mock checkUserSubscription to return true (subscribed user)
-      const mockSubscriptionChain = createMockQueryChain({
-        data: { status: "active" },
-        error: null,
-      });
+      const mockSubscriptionChain = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: { status: "active" },
+          error: null,
+        }),
+      };
       
       // Mock existing pets check (returns empty array)
-      const mockExistingPetsChain = createMockQueryChain({ data: [], error: null });
+      const mockExistingPetsChain = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockResolvedValue({ data: [], error: null }),
+      };
       
       // Mock successful pet creation
-      const mockCreatePetChain = createMockQueryChain({
-        data: { id: "new-pet", name: "Buddy", species: "dog" },
-        error: null,
-      });
+      const mockCreatePetChain = {
+        insert: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: { id: "new-pet", name: "Buddy", species: "dog" },
+          error: null,
+        }),
+      };
       
       mockSupabaseWithAuth.from
-        .mockReturnValueOnce(mockSubscriptionChain) // First call for subscription check
-        .mockReturnValueOnce(mockExistingPetsChain) // Second call for existing pets check  
-        .mockReturnValueOnce(mockCreatePetChain); // Third call for pet creation
+        .mockReturnValueOnce(mockSubscriptionChain as any) // First call for subscription check
+        .mockReturnValueOnce(mockExistingPetsChain as any) // Second call for existing pets check  
+        .mockReturnValueOnce(mockCreatePetChain as any); // Third call for pet creation
 
       const petData = {
         name: "Buddy",

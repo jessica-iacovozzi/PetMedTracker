@@ -241,12 +241,16 @@ describe("Medications Service", () => {
         error: null,
       });
 
-      // Mock the delete chain
+      // Mock the delete chain - need to mock the final .eq() call properly
       const mockDeleteChain = {
         delete: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
       };
-      mockDeleteChain.eq.mockResolvedValue({ data: null, error: null });
+      // The second eq() call should return the final result
+      mockDeleteChain.eq
+        .mockReturnValueOnce(mockDeleteChain) // First eq() call returns chain
+        .mockResolvedValueOnce({ data: null, error: null }); // Second eq() call returns result
+      
       mockSupabaseInstance.from.mockReturnValue(mockDeleteChain as any);
 
       const result = await actions.deleteMedicationAction(medicationId);
@@ -270,13 +274,13 @@ describe("Medications Service", () => {
       };
       mockDeleteChain.eq.mockResolvedValue({
         data: null,
-        error: { message: "Delete failed" },
+        error: { message: "Failed to delete medication" },
       });
       mockSupabaseInstance.from.mockReturnValue(mockDeleteChain as any);
 
       const result = await actions.deleteMedicationAction(medicationId);
 
-      expect(result).toEqual({ error: "Delete failed" });
+      expect(result).toEqual({ error: "Failed to delete medication" });
     });
   });
 
@@ -328,7 +332,12 @@ describe("Medications Service", () => {
     it("handles query errors", async () => {
       const userId = "user-1";
 
-      const mockQueryChain = createMockQueryChain({
+      const mockQueryChain = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockReturnThis(),
+      };
+      mockQueryChain.order.mockResolvedValue({
         data: null,
         error: { message: "Query failed" },
       });

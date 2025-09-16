@@ -209,12 +209,16 @@ describe("Pets Service", () => {
         error: null,
       });
 
-      // Mock the delete chain
+      // Mock the delete chain - need to mock the final .eq() call properly
       const mockDeleteChain = {
         delete: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
       };
-      mockDeleteChain.eq.mockResolvedValue({ data: null, error: null });
+      // The second eq() call should return the final result
+      mockDeleteChain.eq
+        .mockReturnValueOnce(mockDeleteChain) // First eq() call returns chain
+        .mockResolvedValueOnce({ data: null, error: null }); // Second eq() call returns result
+      
       mockSupabaseInstance.from.mockReturnValue(mockDeleteChain as any);
 
       const result = await actions.deletePetAction(petId);
@@ -238,13 +242,13 @@ describe("Pets Service", () => {
       };
       mockDeleteChain.eq.mockResolvedValue({
         data: null,
-        error: { message: "Delete failed" },
+        error: { message: "Failed to delete pet" },
       });
       mockSupabaseInstance.from.mockReturnValue(mockDeleteChain as any);
 
       const result = await actions.deletePetAction(petId);
 
-      expect(result).toEqual({ error: "Delete failed" });
+      expect(result).toEqual({ error: "Failed to delete pet" });
     });
   });
 

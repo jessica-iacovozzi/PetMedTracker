@@ -78,6 +78,7 @@ describe("Environment Variable Management", () => {
 
     it("should fallback to generic variable if environment-specific not found", () => {
       process.env.VERCEL_ENV = "production";
+      delete process.env.PROD_SUPABASE_URL;
       process.env.SUPABASE_URL = "https://fallback.supabase.co";
 
       const { configUtils } = require("@/lib/config");
@@ -98,7 +99,7 @@ describe("Environment Variable Management", () => {
     it("should throw error if required variable is missing", () => {
       const { configUtils } = require("@/lib/config");
       expect(() => {
-        configUtils.getEnvVar("MISSING_VAR", "development");
+        configUtils.getEnvVar("MISSING_VAR", "production");
       }).toThrow("Missing required environment variable: MISSING_VAR");
     });
   });
@@ -129,7 +130,7 @@ describe("Environment Variable Management", () => {
 
     it("should throw error for missing required fields", () => {
       const invalidConfig = {
-        environment: "development" as const,
+        environment: "production" as const,
         supabase: {
           url: "",
           anonKey: "test-anon-key",

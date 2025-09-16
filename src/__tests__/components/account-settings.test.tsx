@@ -3,6 +3,12 @@ import userEvent from "@testing-library/user-event";
 import AccountSettings from "@/components/account-settings";
 import * as actions from "@/app/actions";
 
+// Mock react-dom hooks
+jest.mock("react-dom", () => ({
+  ...jest.requireActual("react-dom"),
+  useFormStatus: () => ({ pending: false }),
+}));
+
 // Mock the actions
 jest.mock("@/app/actions", () => ({
   updateProfileAction: jest.fn(),
@@ -13,7 +19,7 @@ const mockActions = actions as jest.Mocked<typeof actions>;
 
 // Mock Supabase client
 const mockSupabaseInvoke = jest.fn();
-jest.mock("../../supabase/client", () => ({
+jest.mock("../../../supabase/client", () => ({
   createClient: () => ({
     functions: {
       invoke: mockSupabaseInvoke,
@@ -273,7 +279,7 @@ describe("AccountSettings", () => {
         {
           body: {
             user_id: "user-1",
-            return_url: "http://localhost:3000/dashboard/settings",
+            return_url: "http://localhost/dashboard/settings",
           },
         },
       );

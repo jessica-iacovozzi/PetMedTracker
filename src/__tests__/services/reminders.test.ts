@@ -285,12 +285,15 @@ describe("Reminders Service", () => {
         error: null,
       });
 
-      const mockQueryChain = createMockQueryChain({
-        data: mockHistory,
-        error: null,
-      });
-      // Override the order method to return the final result
-      mockQueryChain.order.mockResolvedValue({
+      const mockQueryChain = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockReturnThis(),
+        gte: jest.fn().mockReturnThis(),
+        lte: jest.fn().mockReturnThis(),
+      };
+      // The final method in the chain should return the result
+      mockQueryChain.lte.mockResolvedValue({
         data: mockHistory,
         error: null,
       });

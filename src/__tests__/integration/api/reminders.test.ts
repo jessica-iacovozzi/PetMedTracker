@@ -1,3 +1,8 @@
+// Mock Request globally for the test environment
+global.Request = class MockRequest {
+  constructor(public url: string, public init?: RequestInit) {}
+} as any;
+
 import { NextRequest } from "next/server";
 import { POST } from "@/app/api/reminders/route";
 import { createClient } from "../../../../supabase/server";
