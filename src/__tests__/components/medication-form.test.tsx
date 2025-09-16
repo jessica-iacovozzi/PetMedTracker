@@ -113,10 +113,10 @@ describe("MedicationForm", () => {
     await user.click(frequencySelect);
     await waitFor(() => {
       expect(
-        screen.getByRole("option", { name: /daily/i }),
+        screen.getAllByRole("option", { name: /daily/i })[0],
       ).toBeInTheDocument();
     });
-    await user.click(screen.getByRole("option", { name: /daily/i }));
+    await user.click(screen.getAllByRole("option", { name: /daily/i })[0]);
 
     await user.type(screen.getByLabelText(/time of day/i), "08:00");
 
@@ -173,10 +173,10 @@ describe("MedicationForm", () => {
     await user.click(frequencySelect);
     await waitFor(() => {
       expect(
-        screen.getByRole("option", { name: /daily/i }),
+        screen.getAllByRole("option", { name: /daily/i })[0],
       ).toBeInTheDocument();
     });
-    await user.click(screen.getByRole("option", { name: /daily/i }));
+    await user.click(screen.getAllByRole("option", { name: /daily/i })[0]);
 
     await user.type(screen.getByLabelText(/time of day/i), "08:00");
     await user.click(screen.getByRole("button", { name: /add medication/i }));
@@ -290,10 +290,10 @@ describe("MedicationForm", () => {
     await user.click(frequencySelect);
     await waitFor(() => {
       expect(
-        screen.getByRole("option", { name: /daily/i }),
+        screen.getAllByRole("option", { name: /daily/i })[0],
       ).toBeInTheDocument();
     });
-    await user.click(screen.getByRole("option", { name: /daily/i }));
+    await user.click(screen.getAllByRole("option", { name: /daily/i })[0]);
 
     await user.type(screen.getByLabelText(/time of day/i), "08:00");
     await user.click(screen.getByRole("button", { name: /add medication/i }));

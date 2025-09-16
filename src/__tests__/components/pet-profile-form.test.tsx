@@ -42,7 +42,7 @@ describe("PetProfileForm", () => {
     );
 
     expect(screen.getByLabelText(/pet name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/species/i)).toBeInTheDocument();
+    expect(screen.getAllByLabelText(/species/i)[0]).toBeInTheDocument();
     expect(screen.getByLabelText(/breed/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /add pet/i }),
