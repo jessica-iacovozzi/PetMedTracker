@@ -9,12 +9,24 @@ jest.mock("../../../supabase/server", () => ({
 const mockCreateClient = jest.mocked(createClient);
 
 describe("Subscription Service", () => {
+  // Create a more flexible mock that can be reconfigured per test
+  const createMockQueryChain = (finalResult: any = { data: null, error: null }) => {
+    const chain = {
+      select: jest.fn(),
+      eq: jest.fn(),
+      single: jest.fn(),
+    };
+    
+    // Make all methods return the chain for proper chaining
+    chain.select.mockReturnValue(chain);
+    chain.eq.mockReturnValue(chain);
+    chain.single.mockResolvedValue(finalResult);
+    
+    return chain;
+  };
+  
   const mockSupabaseInstance = {
-    from: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({ data: null, error: null }),
-    })),
+    from: jest.fn(() => createMockQueryChain()),
   };
 
   beforeEach(() => {
@@ -51,11 +63,7 @@ describe("Subscription Service", () => {
     it("returns false for no active subscription", async () => {
       const userId = "user-1";
 
-      const mockQueryChain = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: null, error: null }),
-      };
+      const mockQueryChain = createMockQueryChain({ data: null, error: null });
       mockSupabaseInstance.from.mockReturnValue(mockQueryChain as any);
 
       const result = await actions.checkUserSubscription(userId);
@@ -71,13 +79,8 @@ describe("Subscription Service", () => {
         user_id: userId,
       };
 
-      const mockQueryChain = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest
-          .fn()
-          .mockResolvedValue({ data: mockSubscription, error: null }),
-      };
+      // The query should return null since we're filtering by status: 'active'
+      const mockQueryChain = createMockQueryChain({ data: null, error: null });
       mockSupabaseInstance.from.mockReturnValue(mockQueryChain as any);
 
       const result = await actions.checkUserSubscription(userId);
@@ -89,14 +92,10 @@ describe("Subscription Service", () => {
     it("handles database errors gracefully", async () => {
       const userId = "user-1";
 
-      const mockQueryChain = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: null,
-          error: { message: "Database error" },
-        }),
-      };
+      const mockQueryChain = createMockQueryChain({
+        data: null,
+        error: { message: "Database error" },
+      });
       mockSupabaseInstance.from.mockReturnValue(mockQueryChain as any);
 
       const result = await actions.checkUserSubscription(userId);
@@ -120,19 +119,19 @@ describe("Subscription Service", () => {
       mockCreateClient.mockResolvedValue(mockSupabaseWithAuth as any);
 
       // Mock checkUserSubscription to return false (free user)
-      const mockQueryChain = {
+      const mockSubscriptionChain = createMockQueryChain({ data: null, error: null });
+      
+      // Mock existing pets query to return 1 pet
+      const mockExistingPetsChain = {
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: null, error: null }),
       };
-
-      // Mock existing pets query to return 1 pet
-      mockQueryChain.select.mockResolvedValueOnce({
-        data: [{ id: "existing-pet" }],
-        error: null,
-      });
-
-      mockSupabaseWithAuth.from.mockReturnValue(mockQueryChain as any);
+      // Make the final call resolve with existing pets data
+      mockExistingPetsChain.eq.mockResolvedValue({ data: [{ id: "existing-pet" }], error: null });
+      
+      mockSupabaseWithAuth.from
+        .mockReturnValueOnce(mockSubscriptionChain) // First call for subscription check
+        .mockReturnValueOnce(mockExistingPetsChain as any); // Second call for existing pets check
 
       const petData = {
         name: "Second Pet",
@@ -159,19 +158,19 @@ describe("Subscription Service", () => {
       mockCreateClient.mockResolvedValue(mockSupabaseWithAuth as any);
 
       // Mock checkUserSubscription to return false (free user)
-      const mockQueryChain = {
+      const mockSubscriptionChain = createMockQueryChain({ data: null, error: null });
+      
+      // Mock existing medications query to return 2 medications
+      const mockExistingMedsChain = {
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: null, error: null }),
       };
-
-      // Mock existing medications query to return 2 medications
-      mockQueryChain.select.mockResolvedValueOnce({
-        data: [{ id: "med-1" }, { id: "med-2" }],
-        error: null,
-      });
-
-      mockSupabaseWithAuth.from.mockReturnValue(mockQueryChain as any);
+      // Make the final call resolve with existing medications data
+      mockExistingMedsChain.eq.mockResolvedValue({ data: [{ id: "med-1" }, { id: "med-2" }], error: null });
+      
+      mockSupabaseWithAuth.from
+        .mockReturnValueOnce(mockSubscriptionChain) // First call for subscription check
+        .mockReturnValueOnce(mockExistingMedsChain as any); // Second call for existing meds check
 
       const medicationData = {
         petId: "pet-1",
@@ -202,23 +201,24 @@ describe("Subscription Service", () => {
       mockCreateClient.mockResolvedValue(mockSupabaseWithAuth as any);
 
       // Mock checkUserSubscription to return true (subscribed user)
-      const mockQueryChain = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: { status: "active" },
-          error: null,
-        }),
-        insert: jest.fn().mockReturnThis(),
-      };
-
+      const mockSubscriptionChain = createMockQueryChain({
+        data: { status: "active" },
+        error: null,
+      });
+      
+      // Mock existing pets check (returns empty array)
+      const mockExistingPetsChain = createMockQueryChain({ data: [], error: null });
+      
       // Mock successful pet creation
-      mockQueryChain.single.mockResolvedValueOnce({
+      const mockCreatePetChain = createMockQueryChain({
         data: { id: "new-pet", name: "Buddy", species: "dog" },
         error: null,
       });
-
-      mockSupabaseWithAuth.from.mockReturnValue(mockQueryChain as any);
+      
+      mockSupabaseWithAuth.from
+        .mockReturnValueOnce(mockSubscriptionChain) // First call for subscription check
+        .mockReturnValueOnce(mockExistingPetsChain) // Second call for existing pets check  
+        .mockReturnValueOnce(mockCreatePetChain); // Third call for pet creation
 
       const petData = {
         name: "Buddy",
@@ -227,8 +227,7 @@ describe("Subscription Service", () => {
 
       const result = await actions.createPetAction(petData);
 
-      expect(result.success).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect(result).toEqual({ success: true, data: { id: "new-pet", name: "Buddy", species: "dog" } });
     });
   });
 });

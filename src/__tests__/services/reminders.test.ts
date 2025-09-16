@@ -10,23 +10,42 @@ const mockCreateClient = jest.mocked(createClient);
 
 describe("Reminders Service", () => {
   const mockUser = { id: "user-1" };
+  
+  // Create a more flexible mock that can be reconfigured per test
+  const createMockQueryChain = (finalResult: any = { data: null, error: null }) => {
+    const chain = {
+      select: jest.fn(),
+      update: jest.fn(),
+      insert: jest.fn(),
+      eq: jest.fn(),
+      gte: jest.fn(),
+      lt: jest.fn(),
+      lte: jest.fn(),
+      order: jest.fn(),
+      single: jest.fn(),
+    };
+    
+    // Make all methods return the chain for proper chaining
+    chain.select.mockReturnValue(chain);
+    chain.update.mockReturnValue(chain);
+    chain.insert.mockReturnValue(chain);
+    chain.eq.mockReturnValue(chain);
+    chain.gte.mockReturnValue(chain);
+    chain.lt.mockReturnValue(chain);
+    chain.lte.mockReturnValue(chain);
+    chain.order.mockReturnValue(chain);
+    chain.single.mockResolvedValue(finalResult);
+    
+    return chain;
+  };
+  
   const mockSupabaseInstance = {
     auth: {
       getUser: jest
         .fn()
         .mockResolvedValue({ data: { user: mockUser }, error: null }),
     },
-    from: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      gte: jest.fn().mockReturnThis(),
-      lt: jest.fn().mockReturnThis(),
-      lte: jest.fn().mockReturnThis(),
-      order: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({ data: null, error: null }),
-    })),
+    from: jest.fn(() => createMockQueryChain()),
   };
 
   beforeEach(() => {
@@ -53,13 +72,11 @@ describe("Reminders Service", () => {
         },
       ];
 
-      const mockQueryChain = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        gte: jest.fn().mockReturnThis(),
-        lt: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-      };
+      const mockQueryChain = createMockQueryChain({
+        data: mockReminders,
+        error: null,
+      });
+      // Override the order method to return the final result
       mockQueryChain.order.mockResolvedValue({
         data: mockReminders,
         error: null,
@@ -78,14 +95,7 @@ describe("Reminders Service", () => {
     });
 
     it("filters reminders by date range correctly", async () => {
-      const mockQueryChain = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        gte: jest.fn().mockReturnThis(),
-        lt: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-      };
-      mockQueryChain.order.mockResolvedValue({ data: [], error: null });
+      const mockQueryChain = createMockQueryChain({ data: [], error: null });
       mockSupabaseInstance.from.mockReturnValue(mockQueryChain as any);
 
       await actions.getTodaysRemindersAction();
@@ -102,13 +112,11 @@ describe("Reminders Service", () => {
     });
 
     it("handles query errors", async () => {
-      const mockQueryChain = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        gte: jest.fn().mockReturnThis(),
-        lt: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-      };
+      const mockQueryChain = createMockQueryChain({
+        data: null,
+        error: { message: "Query failed" },
+      });
+      // Override the order method to return the error
       mockQueryChain.order.mockResolvedValue({
         data: null,
         error: { message: "Query failed" },
@@ -142,6 +150,12 @@ describe("Reminders Service", () => {
         medication_id: "med-1",
         scheduled_time: new Date().toISOString(),
       };
+
+      // Ensure auth returns the user
+      mockSupabaseInstance.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null,
+      });
 
       // Mock the reminder update
       const mockUpdateChain = {
@@ -179,6 +193,12 @@ describe("Reminders Service", () => {
     it("handles update errors", async () => {
       const reminderId = "reminder-1";
 
+      // Ensure auth returns the user
+      mockSupabaseInstance.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null,
+      });
+
       const mockUpdateChain = {
         update: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
@@ -204,6 +224,12 @@ describe("Reminders Service", () => {
         medication_id: "med-1",
         scheduled_time: new Date().toISOString(),
       };
+
+      // Ensure auth returns the user
+      mockSupabaseInstance.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null,
+      });
 
       // Mock successful reminder update
       const mockUpdateChain = {
@@ -253,13 +279,17 @@ describe("Reminders Service", () => {
         },
       ];
 
-      const mockQueryChain = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        gte: jest.fn().mockReturnThis(),
-        lte: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-      };
+      // Ensure auth returns the user
+      mockSupabaseInstance.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null,
+      });
+
+      const mockQueryChain = createMockQueryChain({
+        data: mockHistory,
+        error: null,
+      });
+      // Override the order method to return the final result
       mockQueryChain.order.mockResolvedValue({
         data: mockHistory,
         error: null,
@@ -285,12 +315,13 @@ describe("Reminders Service", () => {
     });
 
     it("works without optional filters", async () => {
-      const mockQueryChain = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-      };
-      mockQueryChain.order.mockResolvedValue({ data: [], error: null });
+      // Ensure auth returns the user
+      mockSupabaseInstance.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null,
+      });
+
+      const mockQueryChain = createMockQueryChain({ data: [], error: null });
       mockSupabaseInstance.from.mockReturnValue(mockQueryChain as any);
 
       const result = await actions.getHistoryAction();

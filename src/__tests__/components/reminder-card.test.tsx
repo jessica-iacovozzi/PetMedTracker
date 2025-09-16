@@ -49,14 +49,17 @@ describe("ReminderCard", () => {
   });
 
   it("shows correct status for pending reminder", () => {
-    const reminder = createMockReminder({ status: "pending" });
+    // Create a reminder scheduled for 3 hours in the future to ensure it shows as "Scheduled"
+    const futureTime = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
+    const reminder = createMockReminder({ 
+      status: "pending",
+      scheduled_time: futureTime
+    });
     render(
       <ReminderCard reminder={reminder} onMarkAsGiven={mockOnMarkAsGiven} />,
     );
 
-    expect(screen.getByText((content, element) => {
-      return content.toLowerCase().includes("scheduled");
-    })).toBeInTheDocument();
+    expect(screen.getByText("📅 Scheduled")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /mark as given/i }),
     ).toBeInTheDocument();

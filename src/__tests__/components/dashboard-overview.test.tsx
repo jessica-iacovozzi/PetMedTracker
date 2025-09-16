@@ -118,12 +118,16 @@ describe("DashboardOverview", () => {
     );
 
     // Total pets - check for specific stat card content
-    expect(screen.getByText("Total Pets")).toBeInTheDocument();
-    expect(screen.getByText("2")).toBeInTheDocument();
+    const totalPetsSection = screen.getByText("Total Pets").closest('.p-6');
+    expect(totalPetsSection).toBeInTheDocument();
+    expect(totalPetsSection).toHaveTextContent("Total Pets");
+    expect(totalPetsSection).toHaveTextContent("2");
 
     // Active medications - check for specific stat card content
-    expect(screen.getByText("Active Medications")).toBeInTheDocument();
-    expect(screen.getByText("3")).toBeInTheDocument();
+    const activeMedsSection = screen.getByText("Active Medications").closest('.p-6');
+    expect(activeMedsSection).toBeInTheDocument();
+    expect(activeMedsSection).toHaveTextContent("Active Medications");
+    expect(activeMedsSection).toHaveTextContent("3");
 
     // Check that we have the expected number of pets and medications
     expect(screen.getByText("2 pets")).toBeInTheDocument();
