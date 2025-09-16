@@ -70,7 +70,7 @@ describe("AccountSettings", () => {
 
   const mockUserProfile = {
     id: "user-1",
-    name: "John Doe",
+    full_name: "John Doe",
     email: "test@example.com",
   };
 
