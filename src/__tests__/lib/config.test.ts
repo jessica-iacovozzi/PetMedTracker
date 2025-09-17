@@ -1,5 +1,3 @@
-import { config } from "@/lib/config";
-
 describe("Environment Variable Management", () => {
   const originalEnv = process.env;
 

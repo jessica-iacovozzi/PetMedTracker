@@ -152,6 +152,7 @@ function validateConfig(config: Config): void {
     "supabase.url",
     "supabase.anonKey",
     "supabase.serviceKey",
+    "supabase.projectId",
     "stripe.secretKey",
     "stripe.webhookSecret",
   ];
@@ -190,7 +191,7 @@ function createConfig(): Config {
       url: getEnvVar("SUPABASE_URL", environment),
       anonKey: getEnvVar("SUPABASE_ANON_KEY", environment),
       serviceKey: getEnvVar("SUPABASE_SERVICE_KEY", environment),
-      projectId: getEnvVar("SUPABASE_PROJECT_ID", environment, ""),
+      projectId: getEnvVar("SUPABASE_PROJECT_ID", environment),
     },
     stripe: {
       secretKey: getEnvVar("STRIPE_SECRET_KEY", environment),
