@@ -71,6 +71,14 @@ jobs:
           npm run build
           BUNDLE_SIZE=$(du -sh .next/static | cut -f1)
           echo "📦 Bundle size: $BUNDLE_SIZE"
+        env:
+          NODE_ENV: test
+          SUPABASE_URL: http://localhost:54321
+          SUPABASE_ANON_KEY: test-anon-key
+          STRIPE_SECRET_KEY: sk_test_fake_key
+          STRIPE_WEBHOOK_SECRET: whsec_test_secret
+          SUPABASE_SERVICE_KEY: test-service-key
+          SUPABASE_PROJECT_ID: test-project-id
 
       - name: Comment PR with results
         uses: actions/github-script@v6
