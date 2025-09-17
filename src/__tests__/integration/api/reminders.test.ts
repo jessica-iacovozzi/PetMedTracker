@@ -1,13 +1,17 @@
 // Mock NextRequest for the test environment
 jest.mock("next/server", () => ({
-  NextRequest: jest.fn().mockImplementation((url: string, init?: RequestInit) => ({
-    url,
-    method: init?.method || 'GET',
-    headers: new Map(Object.entries(init?.headers || {})),
-    body: init?.body || null,
-    json: jest.fn().mockResolvedValue(JSON.parse(init?.body as string || '{}')),
-    text: jest.fn().mockResolvedValue(init?.body || ''),
-  })),
+  NextRequest: jest
+    .fn()
+    .mockImplementation((url: string, init?: RequestInit) => ({
+      url,
+      method: init?.method || "GET",
+      headers: new Map(Object.entries(init?.headers || {})),
+      body: init?.body || null,
+      json: jest
+        .fn()
+        .mockResolvedValue(JSON.parse((init?.body as string) || "{}")),
+      text: jest.fn().mockResolvedValue(init?.body || ""),
+    })),
   NextResponse: {
     json: jest.fn((data, init) => ({
       json: jest.fn().mockResolvedValue(data),

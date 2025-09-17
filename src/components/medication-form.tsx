@@ -164,7 +164,9 @@ export default function MedicationForm({
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Pet Selection */}
             <div className="space-y-2">
-              <Label htmlFor="pet" aria-labelledby="pet">Select Pet *</Label>
+              <Label htmlFor="pet" aria-labelledby="pet">
+                Select Pet *
+              </Label>
               <Select
                 value={formData.petId}
                 onValueChange={(value) =>
@@ -187,7 +189,9 @@ export default function MedicationForm({
 
             {/* Medication Name */}
             <div className="space-y-2">
-              <Label htmlFor="name" aria-labelledby="name">Medication Name *</Label>
+              <Label htmlFor="name" aria-labelledby="name">
+                Medication Name *
+              </Label>
               <Input
                 id="name"
                 placeholder="e.g., Heartgard Plus, Apoquel"
@@ -201,7 +205,9 @@ export default function MedicationForm({
 
             {/* Dosage */}
             <div className="space-y-2">
-              <Label htmlFor="dosage" aria-labelledby="dosage">Dosage *</Label>
+              <Label htmlFor="dosage" aria-labelledby="dosage">
+                Dosage *
+              </Label>
               <Input
                 id="dosage"
                 placeholder="e.g., 1 tablet, 5mg, 2ml"
@@ -215,7 +221,9 @@ export default function MedicationForm({
 
             {/* Frequency */}
             <div className="space-y-2">
-              <Label htmlFor="frequency" aria-labelledby="frequency">Frequency *</Label>
+              <Label htmlFor="frequency" aria-labelledby="frequency">
+                Frequency *
+              </Label>
               <Select
                 value={formData.frequency}
                 onValueChange={(value) =>
@@ -239,7 +247,9 @@ export default function MedicationForm({
             {/* Timing and Duration */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="timing" aria-labelledby="timing">Time of Day</Label>
+                <Label htmlFor="timing" aria-labelledby="timing">
+                  Time of Day
+                </Label>
                 <Input
                   id="timing"
                   type="time"
@@ -251,7 +261,9 @@ export default function MedicationForm({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="duration" aria-labelledby="duration">Duration (Optional)</Label>
+                <Label htmlFor="duration" aria-labelledby="duration">
+                  Duration (Optional)
+                </Label>
                 <Input
                   id="duration"
                   placeholder="e.g., 7 days, 2 weeks"
@@ -265,7 +277,9 @@ export default function MedicationForm({
 
             {/* Notes */}
             <div className="space-y-2">
-              <Label htmlFor="notes" aria-labelledby="notes">Notes (Optional)</Label>
+              <Label htmlFor="notes" aria-labelledby="notes">
+                Notes (Optional)
+              </Label>
               <Textarea
                 id="notes"
                 placeholder="Special instructions, side effects to watch for, etc."
@@ -282,7 +296,11 @@ export default function MedicationForm({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Bell className="w-4 h-4 text-blue-600" />
-                  <Label htmlFor="reminders" aria-labelledby="reminders" className="font-medium">
+                  <Label
+                    htmlFor="reminders"
+                    aria-labelledby="reminders"
+                    className="font-medium"
+                  >
                     Enable Reminders
                   </Label>
                 </div>
@@ -296,7 +314,9 @@ export default function MedicationForm({
               </div>
               {formData.enableReminders && (
                 <div className="space-y-2">
-                  <Label htmlFor="reminderTime" aria-labelledby="reminderTime">Reminder Time</Label>
+                  <Label htmlFor="reminderTime" aria-labelledby="reminderTime">
+                    Reminder Time
+                  </Label>
                   <Input
                     id="reminderTime"
                     type="time"

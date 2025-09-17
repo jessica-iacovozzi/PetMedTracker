@@ -10,9 +10,11 @@ const mockCreateClient = jest.mocked(createClient);
 
 describe("Medications Service", () => {
   const mockUser = { id: "user-1" };
-  
+
   // Create a more flexible mock that can be reconfigured per test
-  const createMockQueryChain = (finalResult: any = { data: null, error: null }) => {
+  const createMockQueryChain = (
+    finalResult: any = { data: null, error: null },
+  ) => {
     const chain = {
       select: jest.fn(),
       insert: jest.fn(),
@@ -22,7 +24,7 @@ describe("Medications Service", () => {
       order: jest.fn(),
       single: jest.fn(),
     };
-    
+
     // Make all methods return the chain for proper chaining
     chain.select.mockReturnValue(chain);
     chain.insert.mockReturnValue(chain);
@@ -31,10 +33,10 @@ describe("Medications Service", () => {
     chain.eq.mockReturnValue(chain);
     chain.order.mockReturnValue(chain);
     chain.single.mockResolvedValue(finalResult);
-    
+
     return chain;
   };
-  
+
   const mockSupabaseInstance = {
     auth: {
       getUser: jest
@@ -66,19 +68,28 @@ describe("Medications Service", () => {
         user_id: "user-1",
         pet_id: "pet-1",
       };
-      
+
       // Mock the subscription check first (returns no subscription)
-      const mockSubscriptionChain = createMockQueryChain({ data: null, error: null });
-      
+      const mockSubscriptionChain = createMockQueryChain({
+        data: null,
+        error: null,
+      });
+
       // Mock the existing medications check (returns empty array)
-      const mockExistingMedsChain = createMockQueryChain({ data: [], error: null });
-      
+      const mockExistingMedsChain = createMockQueryChain({
+        data: [],
+        error: null,
+      });
+
       // Mock the medication creation
-      const mockCreateMedChain = createMockQueryChain({ data: mockCreatedMedication, error: null });
-      
+      const mockCreateMedChain = createMockQueryChain({
+        data: mockCreatedMedication,
+        error: null,
+      });
+
       mockSupabaseInstance.from
         .mockReturnValueOnce(mockSubscriptionChain) // First call for subscription check
-        .mockReturnValueOnce(mockExistingMedsChain) // Second call for existing meds check  
+        .mockReturnValueOnce(mockExistingMedsChain) // Second call for existing meds check
         .mockReturnValueOnce(mockCreateMedChain); // Third call for medication creation
 
       const result = await actions.createMedicationAction(mockMedicationData);
@@ -89,16 +100,22 @@ describe("Medications Service", () => {
 
     it("enforces free plan medication limits", async () => {
       // Mock the subscription check (returns no subscription)
-      const mockSubscriptionChain = createMockQueryChain({ data: null, error: null });
-      
+      const mockSubscriptionChain = createMockQueryChain({
+        data: null,
+        error: null,
+      });
+
       // Mock existing medications query to return 2 medications (free plan limit)
       const mockExistingMedsChain = {
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
       };
       // Make the final call resolve with existing medications data
-      mockExistingMedsChain.eq.mockResolvedValue({ data: [{ id: "med-1" }, { id: "med-2" }], error: null });
-      
+      mockExistingMedsChain.eq.mockResolvedValue({
+        data: [{ id: "med-1" }, { id: "med-2" }],
+        error: null,
+      });
+
       mockSupabaseInstance.from
         .mockReturnValueOnce(mockSubscriptionChain) // First call for subscription check
         .mockReturnValueOnce(mockExistingMedsChain as any); // Second call for existing meds check
@@ -148,14 +165,23 @@ describe("Medications Service", () => {
       };
 
       // Mock the subscription check (returns no subscription)
-      const mockSubscriptionChain = createMockQueryChain({ data: null, error: null });
-      
+      const mockSubscriptionChain = createMockQueryChain({
+        data: null,
+        error: null,
+      });
+
       // Mock existing medications query (returns empty array)
-      const mockExistingMedsChain = createMockQueryChain({ data: [], error: null });
-      
+      const mockExistingMedsChain = createMockQueryChain({
+        data: [],
+        error: null,
+      });
+
       // Mock the medication creation with database error
-      const mockCreateMedChain = createMockQueryChain({ data: null, error: { message: "Database constraint violation" } });
-      
+      const mockCreateMedChain = createMockQueryChain({
+        data: null,
+        error: { message: "Database constraint violation" },
+      });
+
       mockSupabaseInstance.from
         .mockReturnValueOnce(mockSubscriptionChain)
         .mockReturnValueOnce(mockExistingMedsChain)
@@ -184,15 +210,18 @@ describe("Medications Service", () => {
         user_id: "user-1",
         pet_id: "pet-1",
       };
-      
+
       // Ensure auth returns the user
       mockSupabaseInstance.auth.getUser.mockResolvedValue({
         data: { user: mockUser },
         error: null,
       });
-      
+
       // Mock the update chain
-      const mockUpdateChain = createMockQueryChain({ data: mockUpdatedMedication, error: null });
+      const mockUpdateChain = createMockQueryChain({
+        data: mockUpdatedMedication,
+        error: null,
+      });
       mockSupabaseInstance.from.mockReturnValue(mockUpdateChain);
 
       const result = await actions.updateMedicationAction(
@@ -219,7 +248,10 @@ describe("Medications Service", () => {
       });
 
       // Mock the update chain with error
-      const mockUpdateChain = createMockQueryChain({ data: null, error: { message: "Medication not found" } });
+      const mockUpdateChain = createMockQueryChain({
+        data: null,
+        error: { message: "Medication not found" },
+      });
       mockSupabaseInstance.from.mockReturnValue(mockUpdateChain);
 
       const result = await actions.updateMedicationAction(
@@ -250,7 +282,7 @@ describe("Medications Service", () => {
       mockDeleteChain.eq
         .mockReturnValueOnce(mockDeleteChain) // First eq() call returns chain
         .mockResolvedValueOnce({ data: null, error: null }); // Second eq() call returns result
-      
+
       mockSupabaseInstance.from.mockReturnValue(mockDeleteChain as any);
 
       const result = await actions.deleteMedicationAction(medicationId);

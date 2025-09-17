@@ -182,7 +182,9 @@ describe("MedicationForm", () => {
     await user.click(screen.getByRole("button", { name: /add medication/i }));
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: /upgrade to premium/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: /upgrade to premium/i }),
+      ).toBeInTheDocument();
     });
   });
 

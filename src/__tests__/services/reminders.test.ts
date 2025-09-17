@@ -10,9 +10,11 @@ const mockCreateClient = jest.mocked(createClient);
 
 describe("Reminders Service", () => {
   const mockUser = { id: "user-1" };
-  
+
   // Create a more flexible mock that can be reconfigured per test
-  const createMockQueryChain = (finalResult: any = { data: null, error: null }) => {
+  const createMockQueryChain = (
+    finalResult: any = { data: null, error: null },
+  ) => {
     const chain = {
       select: jest.fn(),
       update: jest.fn(),
@@ -24,7 +26,7 @@ describe("Reminders Service", () => {
       order: jest.fn(),
       single: jest.fn(),
     };
-    
+
     // Make all methods return the chain for proper chaining
     chain.select.mockReturnValue(chain);
     chain.update.mockReturnValue(chain);
@@ -35,10 +37,10 @@ describe("Reminders Service", () => {
     chain.lte.mockReturnValue(chain);
     chain.order.mockReturnValue(chain);
     chain.single.mockResolvedValue(finalResult);
-    
+
     return chain;
   };
-  
+
   const mockSupabaseInstance = {
     auth: {
       getUser: jest

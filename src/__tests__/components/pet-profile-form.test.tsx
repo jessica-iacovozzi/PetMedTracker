@@ -18,6 +18,42 @@ jest.mock("next/navigation", () => ({
   }),
 }));
 
+// Mock window.location.href to prevent navigation errors in JSDOM
+Object.defineProperty(window, "location", {
+  value: {
+    href: "",
+    assign: jest.fn(),
+    replace: jest.fn(),
+    reload: jest.fn(),
+  },
+  writable: true,
+});
+
+// Mock FileReader for photo upload tests
+(global as any).FileReader = class {
+  result: string | ArrayBuffer | null = null;
+  error = null;
+  readyState = 0;
+  onload: any = null;
+
+  readAsDataURL() {
+    this.result = "data:image/jpeg;base64,mockbase64data";
+    this.readyState = 2;
+    if (this.onload) {
+      setTimeout(() => this.onload({ target: this }), 0);
+    }
+  }
+
+  readAsText() {}
+  readAsArrayBuffer() {}
+  abort() {}
+  addEventListener() {}
+  removeEventListener() {}
+  dispatchEvent() {
+    return true;
+  }
+};
+
 const mockActions = actions as jest.Mocked<typeof actions>;
 
 describe("PetProfileForm", () => {
@@ -30,6 +66,9 @@ describe("PetProfileForm", () => {
     mockActions.createPetAction.mockResolvedValue({ success: true, data: {} });
     mockActions.updatePetAction.mockResolvedValue({ success: true, data: {} });
     mockActions.checkUserSubscription.mockResolvedValue(false);
+
+    // Reset window.location.href mock
+    (window.location as any).href = "";
   });
 
   it("renders form fields correctly", () => {
@@ -134,7 +173,9 @@ describe("PetProfileForm", () => {
     await user.click(screen.getByRole("button", { name: /add pet/i }));
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: /upgrade to premium/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: /upgrade to premium/i }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -214,7 +255,7 @@ describe("PetProfileForm", () => {
     await user.type(screen.getByLabelText(/pet name/i), "Buddy");
     const selectTrigger = screen.getByRole("combobox");
     await user.click(selectTrigger);
-    
+
     // Wait for the select content to be rendered
     await waitFor(() => {
       expect(screen.getByRole("option", { name: "Dog" })).toBeInTheDocument();

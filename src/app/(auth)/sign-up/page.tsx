@@ -40,7 +40,11 @@ export default async function Signup(props: {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="full_name" aria-labelledby="full_name" className="text-sm font-medium">
+                <Label
+                  htmlFor="full_name"
+                  aria-labelledby="full_name"
+                  className="text-sm font-medium"
+                >
                   Full Name
                 </Label>
                 <Input
@@ -54,7 +58,11 @@ export default async function Signup(props: {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" aria-labelledby="email" className="text-sm font-medium">
+                <Label
+                  htmlFor="email"
+                  aria-labelledby="email"
+                  className="text-sm font-medium"
+                >
                   Email
                 </Label>
                 <Input
@@ -68,7 +76,11 @@ export default async function Signup(props: {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" aria-labelledby="password" className="text-sm font-medium">
+                <Label
+                  htmlFor="password"
+                  aria-labelledby="password"
+                  className="text-sm font-medium"
+                >
                   Password
                 </Label>
                 <Input

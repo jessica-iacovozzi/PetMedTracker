@@ -1,19 +1,19 @@
 import "@testing-library/jest-dom";
 
 // Polyfill Web APIs for Next.js server components
-import { TextEncoder, TextDecoder } from 'util';
+import { TextEncoder, TextDecoder } from "util";
 
 // Mock Request and Response for Next.js server components
 global.Request = class Request {
   constructor(input, init = {}) {
     // Use Object.defineProperty to create a proper read-only url property
-    Object.defineProperty(this, 'url', {
-      value: typeof input === 'string' ? input : input.url,
+    Object.defineProperty(this, "url", {
+      value: typeof input === "string" ? input : input.url,
       writable: false,
       enumerable: true,
-      configurable: false
+      configurable: false,
     });
-    this.method = init.method || 'GET';
+    this.method = init.method || "GET";
     this.headers = new Map(Object.entries(init.headers || {}));
     this.body = init.body || null;
   }
@@ -23,15 +23,15 @@ global.Response = class Response {
   constructor(body, init = {}) {
     this.body = body;
     this.status = init.status || 200;
-    this.statusText = init.statusText || 'OK';
+    this.statusText = init.statusText || "OK";
     this.headers = new Map(Object.entries(init.headers || {}));
   }
-  
+
   static json(data, init = {}) {
     return new Response(JSON.stringify(data), {
       ...init,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...init.headers,
       },
     });
@@ -44,24 +44,24 @@ global.Headers = class Headers extends Map {
     if (init) {
       if (Array.isArray(init)) {
         init.forEach(([key, value]) => this.set(key, value));
-      } else if (typeof init === 'object') {
+      } else if (typeof init === "object") {
         Object.entries(init).forEach(([key, value]) => this.set(key, value));
       }
     }
   }
-  
+
   get(name) {
     return super.get(name.toLowerCase());
   }
-  
+
   set(name, value) {
     return super.set(name.toLowerCase(), value);
   }
-  
+
   has(name) {
     return super.has(name.toLowerCase());
   }
-  
+
   delete(name) {
     return super.delete(name.toLowerCase());
   }
@@ -161,17 +161,17 @@ const mockLocation = {
 };
 
 // Check if location is configurable before trying to redefine it
-const locationDescriptor = Object.getOwnPropertyDescriptor(window, 'location');
+const locationDescriptor = Object.getOwnPropertyDescriptor(window, "location");
 if (locationDescriptor && locationDescriptor.configurable) {
-  Object.defineProperty(window, 'location', {
+  Object.defineProperty(window, "location", {
     value: mockLocation,
     writable: true,
   });
 } else {
   // If not configurable, try to mock individual properties
-  Object.keys(mockLocation).forEach(key => {
+  Object.keys(mockLocation).forEach((key) => {
     try {
-      if (typeof window.location[key] === 'function') {
+      if (typeof window.location[key] === "function") {
         window.location[key] = mockLocation[key];
       }
     } catch (e) {
@@ -192,15 +192,15 @@ const mockHistory = {
 };
 
 try {
-  Object.defineProperty(window, 'history', {
+  Object.defineProperty(window, "history", {
     value: mockHistory,
     writable: true,
   });
 } catch (e) {
   // If history cannot be redefined, mock individual methods
-  Object.keys(mockHistory).forEach(key => {
+  Object.keys(mockHistory).forEach((key) => {
     try {
-      if (typeof window.history[key] === 'function') {
+      if (typeof window.history[key] === "function") {
         window.history[key] = mockHistory[key];
       }
     } catch (err) {
@@ -210,8 +210,8 @@ try {
 }
 
 // Mock Navigation API if it exists
-if (typeof window.navigation === 'undefined') {
-  Object.defineProperty(window, 'navigation', {
+if (typeof window.navigation === "undefined") {
+  Object.defineProperty(window, "navigation", {
     value: {
       navigate: jest.fn(),
       back: jest.fn(),

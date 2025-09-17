@@ -135,7 +135,7 @@ describe("AccountSettings", () => {
 
   it("updates profile successfully", async () => {
     const user = userEvent.setup();
-    
+
     render(
       <AccountSettings
         user={mockUser}
@@ -151,13 +151,13 @@ describe("AccountSettings", () => {
     await user.type(nameInput, "Jane Doe");
 
     // Get the form element
-    const form = nameInput.closest('form');
+    const form = nameInput.closest("form");
     expect(form).not.toBeNull();
 
     // Mock form submission by directly calling the action
     const formData = new FormData(form!);
-    formData.set('name', 'Jane Doe');
-    formData.set('email', 'test@example.com');
+    formData.set("name", "Jane Doe");
+    formData.set("email", "test@example.com");
 
     // Simulate form submission by calling the mocked action directly
     await mockActions.updateProfileAction(formData);
@@ -178,7 +178,7 @@ describe("AccountSettings", () => {
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold">Account Settings</h1>
           </div>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Profile Information</CardTitle>
@@ -214,7 +214,9 @@ describe("AccountSettings", () => {
               {message.success && (
                 <FormMessage message={{ success: message.success }} />
               )}
-              {message.error && <FormMessage message={{ error: message.error }} />}
+              {message.error && (
+                <FormMessage message={{ error: message.error }} />
+              )}
             </div>
           )}
         </div>

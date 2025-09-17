@@ -83,7 +83,9 @@ export default function OnboardingMedicationSetup({
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Medication Name */}
         <div className="space-y-2">
-          <Label htmlFor="name" aria-labelledby="name">Medication Name *</Label>
+          <Label htmlFor="name" aria-labelledby="name">
+            Medication Name *
+          </Label>
           <Input
             id="name"
             placeholder="e.g., Heartgard Plus, Apoquel, Rimadyl"
@@ -95,7 +97,9 @@ export default function OnboardingMedicationSetup({
 
         {/* Dosage */}
         <div className="space-y-2">
-          <Label htmlFor="dosage" aria-labelledby="dosage">Dosage *</Label>
+          <Label htmlFor="dosage" aria-labelledby="dosage">
+            Dosage *
+          </Label>
           <Input
             id="dosage"
             placeholder="e.g., 1 tablet, 5mg, 2ml"
@@ -110,7 +114,9 @@ export default function OnboardingMedicationSetup({
         {/* Frequency and Timing */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="frequency" aria-labelledby="frequency">Frequency *</Label>
+            <Label htmlFor="frequency" aria-labelledby="frequency">
+              Frequency *
+            </Label>
             <Select
               value={formData.frequency}
               onValueChange={(value) =>
@@ -131,7 +137,9 @@ export default function OnboardingMedicationSetup({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="timing" aria-labelledby="timing">Time of Day *</Label>
+            <Label htmlFor="timing" aria-labelledby="timing">
+              Time of Day *
+            </Label>
             <Input
               id="timing"
               type="time"
@@ -146,7 +154,9 @@ export default function OnboardingMedicationSetup({
 
         {/* Duration */}
         <div className="space-y-2">
-          <Label htmlFor="duration" aria-labelledby="duration">Duration (Optional)</Label>
+          <Label htmlFor="duration" aria-labelledby="duration">
+            Duration (Optional)
+          </Label>
           <Input
             id="duration"
             placeholder="e.g., 7 days, 2 weeks, ongoing"

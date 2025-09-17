@@ -42,7 +42,11 @@ export default async function SignInPage({ searchParams }: LoginProps) {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" aria-labelledby="email" className="text-sm font-medium">
+                <Label
+                  htmlFor="email"
+                  aria-labelledby="email"
+                  className="text-sm font-medium"
+                >
                   Email
                 </Label>
                 <Input
@@ -57,7 +61,11 @@ export default async function SignInPage({ searchParams }: LoginProps) {
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label htmlFor="password" aria-labelledby="password" className="text-sm font-medium">
+                  <Label
+                    htmlFor="password"
+                    aria-labelledby="password"
+                    className="text-sm font-medium"
+                  >
                     Password
                   </Label>
                   <Link

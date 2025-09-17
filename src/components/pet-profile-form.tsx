@@ -174,7 +174,9 @@ export default function PetProfileForm({
 
             {/* Pet Name */}
             <div className="space-y-2">
-              <Label htmlFor="name" aria-labelledby="name">Pet Name *</Label>
+              <Label htmlFor="name" aria-labelledby="name">
+                Pet Name *
+              </Label>
               <Input
                 id="name"
                 placeholder="e.g., Buddy, Whiskers"
@@ -188,7 +190,9 @@ export default function PetProfileForm({
 
             {/* Species */}
             <div className="space-y-2">
-              <Label htmlFor="species" aria-labelledby="species">Species *</Label>
+              <Label htmlFor="species" aria-labelledby="species">
+                Species *
+              </Label>
               <Select
                 value={formData.species}
                 onValueChange={(value) =>
@@ -213,7 +217,9 @@ export default function PetProfileForm({
 
             {/* Breed */}
             <div className="space-y-2">
-              <Label htmlFor="breed" aria-labelledby="breed">Breed (Optional)</Label>
+              <Label htmlFor="breed" aria-labelledby="breed">
+                Breed (Optional)
+              </Label>
               <Input
                 id="breed"
                 placeholder="e.g., Golden Retriever, Persian"
@@ -227,7 +233,9 @@ export default function PetProfileForm({
             {/* Age and Weight */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="age" aria-labelledby="age">Age (Optional)</Label>
+                <Label htmlFor="age" aria-labelledby="age">
+                  Age (Optional)
+                </Label>
                 <Input
                   id="age"
                   placeholder="e.g., 3 years"
@@ -238,7 +246,9 @@ export default function PetProfileForm({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="weight" aria-labelledby="weight">Weight (Optional)</Label>
+                <Label htmlFor="weight" aria-labelledby="weight">
+                  Weight (Optional)
+                </Label>
                 <Input
                   id="weight"
                   placeholder="e.g., 25 lbs"

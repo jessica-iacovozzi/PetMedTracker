@@ -51,9 +51,9 @@ describe("ReminderCard", () => {
   it("shows correct status for pending reminder", () => {
     // Create a reminder scheduled for 3 hours in the future to ensure it shows as "Scheduled"
     const futureTime = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
-    const reminder = createMockReminder({ 
+    const reminder = createMockReminder({
       status: "pending",
-      scheduled_time: futureTime
+      scheduled_time: futureTime,
     });
     render(
       <ReminderCard reminder={reminder} onMarkAsGiven={mockOnMarkAsGiven} />,

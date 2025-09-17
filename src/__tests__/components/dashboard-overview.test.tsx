@@ -118,13 +118,15 @@ describe("DashboardOverview", () => {
     );
 
     // Total pets - check for specific stat card content
-    const totalPetsSection = screen.getByText("Total Pets").closest('.p-6');
+    const totalPetsSection = screen.getByText("Total Pets").closest(".p-6");
     expect(totalPetsSection).toBeInTheDocument();
     expect(totalPetsSection).toHaveTextContent("Total Pets");
     expect(totalPetsSection).toHaveTextContent("2");
 
     // Active medications - check for specific stat card content
-    const activeMedsSection = screen.getByText("Active Medications").closest('.p-6');
+    const activeMedsSection = screen
+      .getByText("Active Medications")
+      .closest(".p-6");
     expect(activeMedsSection).toBeInTheDocument();
     expect(activeMedsSection).toHaveTextContent("Active Medications");
     expect(activeMedsSection).toHaveTextContent("3");
