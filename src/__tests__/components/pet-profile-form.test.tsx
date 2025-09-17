@@ -19,15 +19,13 @@ jest.mock("next/navigation", () => ({
 }));
 
 // Mock window.location.href to prevent navigation errors in JSDOM
-Object.defineProperty(window, "location", {
-  value: {
-    href: "",
-    assign: jest.fn(),
-    replace: jest.fn(),
-    reload: jest.fn(),
-  },
-  writable: true,
-});
+delete (window as any).location;
+(window as any).location = {
+  href: "",
+  assign: jest.fn(),
+  replace: jest.fn(),
+  reload: jest.fn(),
+};
 
 // Mock FileReader for photo upload tests
 (global as any).FileReader = class {
