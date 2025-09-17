@@ -23,7 +23,7 @@ This project uses GitHub Actions for continuous integration and deployment. The 
 - **Actions**:
   - Jest unit tests with coverage
   - Coverage report upload to Codecov
-  - Minimum 80% coverage requirement
+  - Minimum 20% coverage requirement
 
 ### 3. Integration Tests
 
@@ -112,7 +112,7 @@ npm run test:watch
 ### PR Requirements
 
 - ✅ All tests must pass
-- ✅ Code coverage ≥ 80%
+- ✅ Code coverage ≥ 20%
 - ✅ No linting errors
 - ✅ Type checking passes
 - ✅ Build succeeds

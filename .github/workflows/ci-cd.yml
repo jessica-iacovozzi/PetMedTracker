@@ -155,7 +155,7 @@ jobs:
     environment:
       name: staging
     env:
-      NODE_ENV: production
+      NODE_ENV: staging
       SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
       SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
       STRIPE_SECRET_KEY: ${{ secrets.STAGING_STRIPE_SECRET_KEY }}
