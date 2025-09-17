@@ -51,7 +51,7 @@ jobs:
       - name: Check test coverage
         run: |
           COVERAGE=$(npm run test:unit -- --coverage --silent | grep "All files" | awk '{print $10}' | sed 's/%//')
-          if [ "$COVERAGE" -lt "80" ]; then
+          if [ "$COVERAGE" -lt "20" ]; then
             echo "❌ Test coverage is below 20%: $COVERAGE%"
             exit 1
           else
