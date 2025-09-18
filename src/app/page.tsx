@@ -1,18 +1,9 @@
 import Hero from "@/components/hero";
 import Navbar from "@/components/navbar";
-import PricingCard from "@/components/pricing-card";
+import PricingCard, { StripePlan } from "@/components/pricing-card";
 import Footer from "@/components/footer";
 import { createClient } from "../../supabase/server";
-import {
-  ArrowUpRight,
-  CheckCircle2,
-  Heart,
-  Bell,
-  Calendar,
-  Clock,
-  Shield,
-  Smartphone,
-} from "lucide-react";
+import { ArrowUpRight, Heart, Bell, Calendar, Smartphone } from "lucide-react";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -88,7 +79,7 @@ export default async function Home() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">How It Works</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Simple steps to keep your pet's medication schedule on track
+              Simple steps to keep your pet&apos;s medication schedule on track
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -137,7 +128,7 @@ export default async function Home() {
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {plans?.map((item: any) => (
+            {plans?.map((item: StripePlan) => (
               <PricingCard key={item.id} item={item} user={user} />
             ))}
           </div>
@@ -147,7 +138,9 @@ export default async function Home() {
       {/* CTA Section */}
       <section className="py-20 bg-blue-600 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Your Pet's Health Matters</h2>
+          <h2 className="text-3xl font-bold mb-4">
+            Your Pet&apos;s Health Matters
+          </h2>
           <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
             Join pet owners who never miss a medication dose. Start protecting
             your furry family today.

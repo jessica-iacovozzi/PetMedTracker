@@ -30,7 +30,7 @@ export default async function SignInPage({ searchParams }: LoginProps) {
             <div className="space-y-2 text-center">
               <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
               <p className="text-sm text-muted-foreground">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link
                   className="text-primary font-medium hover:underline transition-all"
                   href="/sign-up"
@@ -42,7 +42,11 @@ export default async function SignInPage({ searchParams }: LoginProps) {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">
+                <Label
+                  htmlFor="email"
+                  aria-labelledby="email"
+                  className="text-sm font-medium"
+                >
                   Email
                 </Label>
                 <Input
@@ -57,7 +61,11 @@ export default async function SignInPage({ searchParams }: LoginProps) {
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label htmlFor="password" className="text-sm font-medium">
+                  <Label
+                    htmlFor="password"
+                    aria-labelledby="password"
+                    className="text-sm font-medium"
+                  >
                     Password
                   </Label>
                   <Link
